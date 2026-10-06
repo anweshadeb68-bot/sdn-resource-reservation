@@ -4,7 +4,10 @@ Both members import from this file. Never hard-code these values elsewhere.
 Any change must be agreed by both members and bumps INTERFACE_VERSION.
 """
 
-INTERFACE_VERSION = 1
+INTERFACE_VERSION = 2
+
+# Demo storyline: lunar base. Display names only; all logic uses h1-h4.
+HOST_LABELS = {"h1": "Astronaut EVA camera", "h2": "Science lab", "h3": "Base systems", "h4": "Mission Control"}
 
 HOSTS = {"h1": "10.0.0.1", "h2": "10.0.0.2", "h3": "10.0.0.3", "h4": "10.0.0.4"}
 SERVER_HOST = "h4"
