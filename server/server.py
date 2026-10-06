@@ -42,21 +42,27 @@ def handle_request(line, client_ip):
 
     if command == "RESERVE":
         # Format: RESERVE <src> <dst> <mbps> <seconds>
-        #
-        # TODO 3 (Day 2): validate the request before anything else.
-        #   Return "ERR BAD_REQUEST <detail>" when:
-        #     - there are not exactly 5 parts           -> detail "wrong_field_count"
-        #     - src or dst is not in config.HOSTS       -> detail "unknown_host"
-        #     - src == dst                              -> detail "same_host"
-        #     - mbps or seconds is not a whole number   -> detail "not_a_number"
-        #       hint: int("5") works, int("5.5") and int("abc") raise ValueError
-        #     - mbps outside config.MIN_MBPS..config.MAX_MBPS          -> "mbps_out_of_range"
-        #     - seconds outside config.MIN_SECONDS..config.MAX_SECONDS -> "seconds_out_of_range"
-        #   WHY: anything a client sends could be wrong or hostile. Checking it
-        #   here, once, means the booking code (Day 3) can trust its inputs,
-        #   and bad input can never crash the server.
-        return "OK RESERVED 0 {} {}".format(parts[3] if len(parts) > 3 else "?",
-                                            parts[4] if len(parts) > 4 else "?")
+        if len(parts) != 5:
+            return "ERR BAD_REQUEST wrong_field_count"
+
+        src, dst = parts[1], parts[2]
+        if src not in config.HOSTS or dst not in config.HOSTS:
+            return "ERR BAD_REQUEST unknown_host"
+        if src == dst:
+            return "ERR BAD_REQUEST same_host"
+
+        try:
+            mbps = int(parts[3])
+            seconds = int(parts[4])
+        except ValueError:
+            return "ERR BAD_REQUEST not_a_number"
+
+        if not (config.MIN_MBPS <= mbps <= config.MAX_MBPS):
+            return "ERR BAD_REQUEST mbps_out_of_range"
+        if not (config.MIN_SECONDS <= seconds <= config.MAX_SECONDS):
+            return "ERR BAD_REQUEST seconds_out_of_range"
+
+        return "OK RESERVED 0 {} {}".format(mbps, seconds)   # placeholder until Day 3
 
     if command == "RELEASE":
         if len(parts) != 2 or not parts[1].isdigit():
