@@ -85,7 +85,7 @@ def handle_client(conn, addr):
     #   WHY: a client that connects and never speaks would otherwise hold a
     #   thread and a socket open forever. Enough of them and the server runs
     #   out of resources -- a real attack called "slowloris".
-
+    conn.settimeout(IDLE_TIMEOUT_S)
     reader = conn.makefile("r", encoding="utf-8", newline="\n")
     try:
         for raw in reader:                 # one iteration per line received
@@ -97,6 +97,8 @@ def handle_client(conn, addr):
             reply = handle_request(line, client_ip)
             log("reply:   {}".format(reply))
             send_line(conn, reply)
+    except socket.timeout:
+        log("idle timeout")
     except (ConnectionResetError, BrokenPipeError):
         log("client dropped the connection")
     finally:
