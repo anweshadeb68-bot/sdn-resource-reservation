@@ -13,12 +13,26 @@ import os
 import socket
 import sys
 import threading
+import time
 
 # Make "from common import config" work when run as python3.9 server/server.py
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from common import config  # noqa: E402
+from bookings import BookingTable  # noqa: E402  (server/bookings.py)
 
 IDLE_TIMEOUT_S = 60  # close a connection that sends nothing for this long
+
+# Day 3 stand-in for the controller: pretend each booking takes 0.2 s to
+# install on the switches. Day 4 replaces this with the real HTTP call.
+SIMULATED_CONTROLLER_DELAY_S = 0.2
+
+
+def pretend_controller(booking):
+    time.sleep(SIMULATED_CONTROLLER_DELAY_S)
+    return True
+
+
+table = BookingTable(enforce=pretend_controller)   # one shared table for all threads
 
 
 def log(msg):
@@ -62,18 +76,31 @@ def handle_request(line, client_ip):
         if not (config.MIN_SECONDS <= seconds <= config.MAX_SECONDS):
             return "ERR BAD_REQUEST seconds_out_of_range"
 
-        return "OK RESERVED 0 {} {}".format(mbps, seconds)   # placeholder until Day 3
+        ok, result = table.reserve(src, dst, mbps, seconds, client_ip)
+        if ok:
+            return "OK RESERVED {} {} {}".format(result, mbps, seconds)
+        return "ERR REJECTED {}".format(result)
 
     if command == "RELEASE":
         if len(parts) != 2 or not parts[1].isdigit():
             return "ERR BAD_REQUEST usage: RELEASE <id>"
-        return "OK RELEASED {}".format(parts[1])          # placeholder until Day 3
+        booking_id = int(parts[1])
+        outcome = table.release(booking_id, client_ip)
+        if outcome == "released":
+            return "OK RELEASED {}".format(booking_id)
+        if outcome == "forbidden":
+            return "ERR FORBIDDEN {}".format(booking_id)
+        return "ERR NOT_FOUND {}".format(booking_id)
 
     if command == "STATUS":
-        return "OK STATUS capacity=10 reserved=0 free=8 used=unknown active=0"  # placeholder
+        st = table.status()
+        return "OK STATUS capacity={} reserved={} free={:g} used=unknown active={}".format(
+            st["capacity"], st["reserved"], st["free"], st["active"])
 
     if command == "LIST":
-        return "OK LIST 0"                                 # placeholder
+        items = table.list_active()
+        fields = ["{}:{}>{}:{}:{}".format(*item) for item in items]
+        return " ".join(["OK LIST", str(len(items))] + fields)
 
     return "ERR BAD_REQUEST unknown_command"
 
