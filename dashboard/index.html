@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moon Link Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #05070d;
+    --deep: #0b1120;
+    --glass: rgba(16, 24, 44, .72);
+    --line: rgba(160, 180, 220, .22);
+    --text: #e8ecf4;
+    --muted: #94a0b8;
+    --eva: #f28c28;
+    --lab: #3fc1c9;
+    --base: #9b8cff;
+    --isro: #2e86c1;
+    --oxide: #ff6b4a;
+    --display: "Michroma", "Eurostile", "Arial Black", sans-serif;
+    --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--void); }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    font: 400 17px/1.5 var(--body);
+    background:
+      radial-gradient(1.2px 1.2px at 12% 18%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 27% 62%, #cfd8ff 50%, transparent 51%),
+      radial-gradient(1.4px 1.4px at 41% 9%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 58% 33%, #fff 50%, transparent 51%),
+      radial-gradient(1.6px 1.6px at 71% 14%, #ffe9c7 50%, transparent 51%),
+      radial-gradient(1px 1px at 83% 47%, #fff 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 92% 8%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 6% 81%, #cfd8ff 50%, transparent 51%),
+      radial-gradient(1px 1px at 36% 88%, #fff 50%, transparent 51%),
+      radial-gradient(1.3px 1.3px at 64% 76%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 88% 91%, #ffe9c7 50%, transparent 51%),
+      radial-gradient(1px 1px at 49% 52%, #fff 50%, transparent 51%),
+      radial-gradient(ellipse 70% 45% at 85% 0%, rgba(46,134,193,.18), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 0% 100%, rgba(242,140,40,.10), transparent 70%),
+      var(--void);
+    background-size: 340px 340px, 340px 340px, 340px 340px, 340px 340px, 340px 340px, 340px 340px,
+                     340px 340px, 340px 340px, 340px 340px, 340px 340px, 340px 340px, 340px 340px,
+                     auto, auto, auto;
+  }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px 56px; position: relative; }
+
+  /* ---- hero: Earth in the sky, the Moon's horizon below ---- */
+  .hero { position: relative; padding: 40px 0 0; overflow: visible; }
+  .earth {
+    position: absolute; right: 4%; top: 30px; width: 74px; height: 74px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #9fd3ff 0, #2e86c1 38%, #123a66 72%, #071526 100%);
+    box-shadow: 0 0 40px rgba(46,134,193,.55), inset -14px -10px 22px rgba(0,0,0,.55);
+  }
+  .earth::after {
+    content: ""; position: absolute; inset: 18px 12px 26px 22px; border-radius: 50%;
+    background: radial-gradient(ellipse at 40% 50%, rgba(120,200,140,.55), transparent 65%);
+  }
+  header h1 {
+    font: 400 clamp(26px, 4.4vw, 46px)/1.15 var(--display);
+    letter-spacing: .06em; margin: 0; max-width: 14ch;
+  }
+  header h1 .second { color: var(--eva); display: block; }
+  header p { margin: 14px 0 0; color: var(--muted); max-width: 52ch; font-size: 18px; }
+  .link-state { margin-top: 18px; display: inline-flex; align-items: center; gap: 10px; font-weight: 600; color: var(--lab); }
+  .lamp { width: 9px; height: 9px; border-radius: 50%; background: var(--lab); box-shadow: 0 0 10px var(--lab); }
+  .link-state.down { color: var(--oxide); }
+  .link-state.down .lamp { background: var(--oxide); box-shadow: 0 0 10px var(--oxide); }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 30px;
+    border: 1px solid var(--line); background: rgba(5,7,13,.55);
+  }
+  .facts div { padding: 14px 18px; border-left: 1px solid var(--line); }
+  .facts div:first-child { border-left: 0; }
+  .facts b { display: block; font: 400 22px/1.2 var(--display); letter-spacing: .03em; }
+  .facts span { color: var(--muted); font-size: 15px; }
+
+  /* ---- the Moon link: the one bold element ---- */
+  .link { margin: 46px 0 0; position: relative; }
+  .ends { display: flex; justify-content: space-between; margin-bottom: 12px; font: 400 15px/1 var(--display); letter-spacing: .05em; color: var(--muted); }
+  .pipe {
+    position: relative; height: 104px; display: flex; overflow: hidden;
+    border-radius: 52px; border: 1px solid rgba(160,190,255,.45);
+    background: linear-gradient(180deg, rgba(20,32,60,.9), rgba(8,12,24,.95));
+    box-shadow: 0 0 0 6px rgba(46,134,193,.08), 0 0 50px rgba(46,134,193,.18), inset 0 0 30px rgba(0,0,0,.6);
+  }
+  .lane {
+    height: 100%; display: flex; flex-direction: column; justify-content: center;
+    padding: 0 20px; min-width: 0; color: #0a0e18;
+    border-right: 1px solid rgba(5,7,13,.6);
+    transition: width .5s ease;
+  }
+  .lane b { font: 600 20px/1.1 var(--body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lane span { font-size: 14px; font-weight: 500; opacity: .85; white-space: nowrap; }
+  .gap { flex: 1; }
+  .reserve {
+    height: 100%; border-left: 1px dashed rgba(200,210,235,.5);
+    background: repeating-linear-gradient(135deg, rgba(150,165,200,.16) 0 5px, transparent 5px 11px);
+    display: flex; align-items: center; justify-content: center; padding: 0 6px;
+    color: var(--muted); font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden;
+  }
+  .scale { position: relative; height: 26px; margin: 8px 0 0; }
+  .scale i { position: absolute; top: 0; transform: translateX(-50%); font-style: normal; font-size: 13px; color: var(--muted); }
+  .scale i::before { content: ""; display: block; width: 1px; height: 6px; background: var(--line); margin: 0 auto 3px; }
+  .summary { font-size: 18px; margin: 10px 0 0; color: var(--text); }
+  .summary strong { font: 400 22px/1 var(--display); color: var(--eva); }
+  .measured { color: var(--muted); }
+
+  .horizon {
+    position: relative; height: 90px; margin: 38px -24px 0; overflow: hidden; pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 35%, transparent 100%);
+            mask-image: linear-gradient(180deg, #000 35%, transparent 100%);
+  }
+  .horizon::before {
+    content: ""; position: absolute; left: -10%; right: -10%; top: 0; height: 900px; border-radius: 50%;
+    background:
+      radial-gradient(circle at 22% 6%, rgba(0,0,0,.35) 0 22px, transparent 23px),
+      radial-gradient(circle at 63% 4%, rgba(0,0,0,.3) 0 34px, transparent 35px),
+      radial-gradient(circle at 81% 9%, rgba(0,0,0,.28) 0 14px, transparent 15px),
+      radial-gradient(ellipse at 50% 0%, #8e8a86 0, #4a4846 18%, #1c1c20 45%, var(--void) 70%);
+    box-shadow: 0 -10px 60px rgba(242,140,40,.18), inset 0 8px 24px rgba(255,220,180,.18);
+  }
+
+  /* ---- lower panels ---- */
+  .panels { display: grid; grid-template-columns: minmax(280px, 390px) 1fr; gap: 26px; margin-top: -30px; position: relative; }
+  .panel {
+    background: var(--glass); border: 1px solid var(--line); padding: 24px 26px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .panel h2 { font: 400 20px/1.2 var(--display); letter-spacing: .05em; margin: 0 0 18px; }
+
+  fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+  legend { font-weight: 600; margin-bottom: 8px; color: var(--muted); }
+  .modules label {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 6px;
+    border: 1px solid var(--line); background: rgba(5,7,13,.45); cursor: pointer;
+  }
+  .modules input { accent-color: var(--eva); }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; flex: none; box-shadow: 0 0 8px currentColor; }
+  .modules small { color: var(--muted); margin-left: auto; }
+  .modules label:has(input:checked) { border-color: var(--eva); background: rgba(242,140,40,.08); }
+
+  .speed-row { display: flex; align-items: center; gap: 14px; }
+  input[type=range] { flex: 1; accent-color: var(--eva); }
+  .speed-value { font: 400 24px/1 var(--display); min-width: 110px; text-align: right; color: var(--eva); }
+  select { font: inherit; width: 100%; padding: 9px 10px; background: rgba(5,7,13,.6); border: 1px solid var(--line); color: var(--text); }
+  button {
+    font: 600 18px/1 var(--body); cursor: pointer; width: 100%; padding: 14px 18px;
+    border: 1px solid var(--eva); background: var(--eva); color: #120a02;
+    box-shadow: 0 0 24px rgba(242,140,40,.35);
+  }
+  button:hover { background: #ffa047; }
+  button:disabled { opacity: .55; cursor: progress; }
+  :focus-visible { outline: 2px solid var(--lab); outline-offset: 3px; }
+  .feedback { min-height: 48px; margin: 12px 0 0; font-weight: 500; color: var(--lab); }
+  .feedback.bad { color: var(--oxide); }
+
+  .lanes { list-style: none; margin: 0; padding: 0; }
+  .lanes li { display: grid; grid-template-columns: 12px 1fr auto auto; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .lanes li:first-child { border-top: 1px solid var(--line); }
+  .lanes .who b { display: block; font-weight: 600; }
+  .lanes .who span { color: var(--muted); font-size: 15px; }
+  .lanes .clock { text-align: right; }
+  .lanes .clock b { font: 400 20px/1 var(--display); display: block; font-variant-numeric: tabular-nums; }
+  .lanes .clock span { color: var(--muted); font-size: 14px; }
+  .lanes button { width: auto; padding: 8px 12px; font-size: 15px; background: transparent; color: var(--text); border-color: var(--line); box-shadow: none; }
+  .lanes button:hover { border-color: var(--oxide); color: var(--oxide); background: transparent; }
+  .empty { color: var(--muted); margin: 4px 0 0; }
+
+  .log { margin-top: 24px; }
+  .log h3 { font: 400 14px/1 var(--display); letter-spacing: .05em; margin: 0 0 10px; color: var(--muted); }
+  .log ol { list-style: none; margin: 0; padding: 0; font-size: 15px; color: var(--muted); }
+  .log li { padding: 3px 0; }
+  .log time { font-variant-numeric: tabular-nums; margin-right: 10px; color: var(--text); }
+  .log .bad { color: var(--oxide); }
+
+  @media (max-width: 760px) {
+    .panels { grid-template-columns: 1fr; }
+    .facts { grid-template-columns: repeat(2, 1fr); }
+    .facts div:nth-child(3) { border-left: 0; }
+    .facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .earth { width: 48px; height: 48px; top: 18px; }
+    .pipe { height: 88px; }
+    .lane { padding: 0 10px; }
+    .lane b { font-size: 16px; }
+    .lane span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .lane { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="earth" aria-hidden="true"></div>
+    <header>
+      <h1>Moon link <span class="second">mission control</span></h1>
+      <p>Book protected bandwidth on the one radio link between the lunar base and Earth, so the moonwalk video never stutters.</p>
+      <div class="link-state" id="linkState"><span class="lamp"></span><span id="linkText">Connecting…</span></div>
+    </header>
+    <div class="facts">
+      <div><b id="fCap">10 Mbps</b><span>Moon–Earth link</span></div>
+      <div><b id="fBook">8 Mbps</b><span>can be booked</span></div>
+      <div><b id="fKept">2 Mbps</b><span>always kept free</span></div>
+      <div><b id="fLanes">0 / 8</b><span>protected lanes in use</span></div>
+    </div>
+  </div>
+
+  <section class="link" aria-label="Moon to Earth link usage">
+    <div class="ends"><span>Lunar base</span><span>Earth</span></div>
+    <div class="pipe" id="pipe" role="img" aria-label="Link usage"></div>
+    <div class="scale" id="scale"></div>
+    <p class="summary" id="summary">&nbsp;</p>
+  </section>
+  <div class="horizon" aria-hidden="true"></div>
+
+  <div class="panels">
+    <section class="panel">
+      <h2>Book a lane</h2>
+      <form id="bookForm">
+        <fieldset class="modules" id="modules"><legend>For which module</legend></fieldset>
+        <fieldset>
+          <legend><label for="speed">Guaranteed speed</label></legend>
+          <div class="speed-row">
+            <input type="range" id="speed" min="1" max="8" step="1" value="5">
+            <span class="speed-value" id="speedValue">5 Mbps</span>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><label for="duration">For how long</label></legend>
+          <select id="duration">
+            <option value="30">30 seconds</option>
+            <option value="60">1 minute</option>
+            <option value="120" selected>2 minutes</option>
+            <option value="300">5 minutes</option>
+            <option value="600">10 minutes</option>
+          </select>
+        </fieldset>
+        <button type="submit" id="bookBtn">Book lane</button>
+        <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Active lanes</h2>
+      <ul class="lanes" id="lanes"></ul>
+      <p class="empty" id="empty">No lanes booked. Right now every module shares the Moon link first come, first served.</p>
+      <div class="log">
+        <h3>Recent activity</h3>
+        <ol id="log"></ol>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const COLORS = { h1: "var(--eva)", h2: "var(--lab)", h3: "var(--base)" };
+let labels = { h1: "Astronaut EVA camera", h2: "Science lab", h3: "Base systems", h4: "Mission Control" };
+let capacity = 10, reservable = 8;
+let modulesBuilt = false;
+let lastState = null;
+
+const $ = (id) => document.getElementById(id);
+const fmtTime = (s) => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+const fmtMbps = (x) => (Math.round(x * 10) / 10).toString();
+
+function buildModules() {
+  const box = $("modules");
+  ["h1", "h2", "h3"].forEach((h, i) => {
+    const lab = document.createElement("label");
+    lab.innerHTML = '<input type="radio" name="src" value="' + h + '"' + (i === 0 ? " checked" : "") + '>' +
+      '<span class="swatch" style="background:' + COLORS[h] + ';color:' + COLORS[h] + '"></span>' +
+      '<span>' + labels[h] + '</span><small>' + h + '</small>';
+    box.appendChild(lab);
+  });
+  modulesBuilt = true;
+}
+
+function buildScale() {
+  const scale = $("scale");
+  scale.innerHTML = "";
+  for (let m = 0; m <= capacity; m += 2) {
+    const tick = document.createElement("i");
+    tick.style.left = (m / capacity * 100) + "%";
+    tick.textContent = m;
+    scale.appendChild(tick);
+  }
+}
+
+function addLog(text, bad) {
+  const li = document.createElement("li");
+  const now = new Date();
+  li.innerHTML = "<time>" + now.toTimeString().slice(0, 8) + "</time>";
+  const span = document.createElement("span");
+  span.textContent = text;
+  if (bad) span.className = "bad";
+  li.appendChild(span);
+  const log = $("log");
+  log.prepend(li);
+  while (log.children.length > 6) log.lastChild.remove();
+}
+
+function render(state) {
+  const ls = $("linkState");
+  if (!state.server_ok) {
+    ls.classList.add("down");
+    $("linkText").textContent = "Mission Control server not reachable";
+    return;
+  }
+  ls.classList.remove("down");
+  lastState = state;
+  $("fCap").textContent = fmtMbps(state.capacity) + " Mbps";
+  $("fBook").textContent = fmtMbps(state.reservable) + " Mbps";
+  $("fKept").textContent = fmtMbps(state.capacity - state.reservable) + " Mbps";
+  $("fLanes").textContent = state.active + " / " + state.max_active;
+  $("linkText").textContent = "Linked to Mission Control";
+
+  labels = state.labels || labels;
+  capacity = state.capacity || capacity;
+  reservable = state.reservable || reservable;
+  if (!modulesBuilt) { buildModules(); buildScale(); }
+
+  // The pipe: booked lanes, then free bookable room, then the part always kept free.
+  const pipe = $("pipe");
+  pipe.innerHTML = "";
+  const onLink = state.bookings.filter(b => b.dst === "h4" || b.src === "h4");
+  onLink.forEach(b => {
+    const lane = document.createElement("div");
+    lane.className = "lane";
+    lane.style.width = (b.mbps / capacity * 100) + "%";
+    lane.style.background = COLORS[b.src] || "var(--text)";
+    lane.style.boxShadow = "inset 0 0 22px rgba(255,255,255,.25)";
+    lane.title = labels[b.src] + ": " + b.mbps + " Mbps, " + fmtTime(b.left) + " left";
+    lane.innerHTML = "<b>" + labels[b.src] + "</b><span>" + b.mbps + " Mbps</span>";
+    pipe.appendChild(lane);
+  });
+  pipe.appendChild(Object.assign(document.createElement("div"), { className: "gap" }));
+  const reserve = document.createElement("div");
+  reserve.className = "reserve";
+  reserve.style.width = ((capacity - reservable) / capacity * 100) + "%";
+  reserve.textContent = "Kept free";
+  reserve.title = "Never bookable: always free for commands and booking messages";
+  pipe.appendChild(reserve);
+  pipe.setAttribute("aria-label", state.reserved + " of " + reservable + " bookable Mbps promised");
+
+  let summary = "<strong>" + fmtMbps(state.reserved) + "</strong> of " + fmtMbps(reservable) +
+    " bookable Mbps promised. <strong>" + fmtMbps(state.free) + "</strong> free. " +
+    '<span class="measured">The hatched part is never booked, so commands always get through.</span>';
+  if (state.used !== null && state.used !== undefined) {
+    summary += ' <span class="measured">Measured traffic now: ' + fmtMbps(state.used) + " Mbps.</span>";
+  }
+  $("summary").innerHTML = summary;
+
+  // Active lanes list
+  const list = $("lanes");
+  list.innerHTML = "";
+  state.bookings.forEach(b => {
+    const li = document.createElement("li");
+    li.innerHTML =
+      '<span class="swatch" style="background:' + (COLORS[b.src] || "var(--text)") + ';color:' + (COLORS[b.src] || "var(--text)") + '"></span>' +
+      '<div class="who"><b>' + labels[b.src] + '</b><span>' + b.mbps + " Mbps to " + labels[b.dst] +
+      ", booking " + b.id + "</span></div>" +
+      '<div class="clock"><b>' + fmtTime(b.left) + "</b><span>left</span></div>";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "Cancel";
+    btn.setAttribute("aria-label", "Cancel booking " + b.id + " for " + labels[b.src]);
+    btn.onclick = () => release(b.id, labels[b.src]);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  $("empty").hidden = state.bookings.length > 0;
+}
+
+async function refresh() {
+  try {
+    const res = await fetch("/api/state", { cache: "no-store" });
+    render(await res.json());
+  } catch (e) {
+    render({ server_ok: false });
+  }
+}
+
+async function post(path, body) {
+  const res = await fetch(path, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+$("speed").addEventListener("input", e => { $("speedValue").textContent = e.target.value + " Mbps"; });
+
+$("bookForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const src = document.querySelector("input[name=src]:checked").value;
+  const mbps = Number($("speed").value);
+  const seconds = Number($("duration").value);
+  const fb = $("feedback");
+  $("bookBtn").disabled = true;
+  fb.className = "feedback";
+  fb.textContent = "Asking network control for a protected lane…";
+  try {
+    const r = await post("/api/reserve", { src, mbps, seconds });
+    if (r.ok) {
+      const id = r.reply.split(" ")[2];
+      fb.textContent = "Booked: " + mbps + " Mbps for " + labels[src] + " (booking " + id + ").";
+      addLog("Booked " + mbps + " Mbps for " + labels[src]);
+    } else {
+      let msg = r.message;
+      if (r.reply && r.reply.indexOf("insufficient_capacity") >= 0 && lastState) {
+        msg = "Not enough room: " + mbps + " Mbps asked, only " + fmtMbps(lastState.free) +
+              " Mbps free on the Moon link.";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = msg;
+      addLog("Refused for " + labels[src] + ": " + msg, true);
+    }
+  } catch (err) {
+    fb.className = "feedback bad";
+    fb.textContent = "The dashboard lost contact with its backend.";
+  }
+  $("bookBtn").disabled = false;
+  refresh();
+});
+
+async function release(id, who) {
+  const r = await post("/api/release", { id });
+  addLog(r.ok ? "Cancelled booking " + id + " for " + who : "Cancel failed: " + r.message, !r.ok);
+  refresh();
+}
+
+refresh();
+setInterval(refresh, 1000);
+</script>
+</body>
+</html>
