@@ -19,20 +19,18 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from common import config  # noqa: E402
 from bookings import BookingTable  # noqa: E402  (server/bookings.py)
+from controller_client import ControllerClient  # noqa: E402  (server/controller_client.py)
 
 IDLE_TIMEOUT_S = 60  # close a connection that sends nothing for this long
 
-# Day 3 stand-in for the controller: pretend each booking takes 0.2 s to
-# install on the switches. Day 4 replaces this with the real HTTP call.
-SIMULATED_CONTROLLER_DELAY_S = 0.2
+EXPIRY_CHECK_S = 1   # how often the expiry thread looks for finished bookings
 
+# The controller's web interface. main() sets the real URL from --controller.
+controller = ControllerClient()
 
-def pretend_controller(booking):
-    time.sleep(SIMULATED_CONTROLLER_DELAY_S)
-    return True
-
-
-table = BookingTable(enforce=pretend_controller)   # one shared table for all threads
+# One shared table for all threads. Before saving a booking, the table asks
+# the controller to install it (the "Approved booking" arrow on the diagram).
+table = BookingTable(enforce=controller.install)
 
 
 def log(msg):
@@ -87,6 +85,9 @@ def handle_request(line, client_ip):
         booking_id = int(parts[1])
         outcome = table.release(booking_id, client_ip)
         if outcome == "released":
+            if not controller.remove(booking_id):
+                log("WARNING: controller did not confirm removal of booking {}; "
+                    "its rule will still time out on the switch".format(booking_id))
             return "OK RELEASED {}".format(booking_id)
         if outcome == "forbidden":
             return "ERR FORBIDDEN {}".format(booking_id)
@@ -94,8 +95,10 @@ def handle_request(line, client_ip):
 
     if command == "STATUS":
         st = table.status()
-        return "OK STATUS capacity={} reserved={} free={:g} used=unknown active={}".format(
-            st["capacity"], st["reserved"], st["free"], st["active"])
+        used = controller.link_used_mbps("s1-s2")
+        used_text = "unknown" if used is None else "{:g}".format(used)
+        return "OK STATUS capacity={} reserved={} free={:g} used={} active={}".format(
+            st["capacity"], st["reserved"], st["free"], used_text, st["active"])
 
     if command == "LIST":
         items = table.list_active()
@@ -140,11 +143,30 @@ def handle_client(conn, addr):
         log("disconnected")
 
 
+def expiry_loop():
+    """Runs forever in its own thread: frees bookings whose time is up."""
+    while True:
+        time.sleep(EXPIRY_CHECK_S)
+        # TODO 8 (Day 4): clean up finished bookings.
+        #   - ask the table for them:   expired_ids = table.remove_expired()
+        #   - for each booking_id in that list:
+        #       log("booking {} expired".format(booking_id))
+        #       and tell the controller:  controller.remove(booking_id)
+        #   WHY: when a moonwalk window ends, its protected lane must come off
+        #   the switches automatically, even if nobody sends RELEASE.
+        expired_ids = table.remove_expired()
+        for booking_id in expired_ids:
+            log("booking {} expired".format(booking_id))
+            controller.remove(booking_id)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Network resource reservation server")
     parser.add_argument("--host", default="127.0.0.1",
                         help="address to listen on (use 0.0.0.0 inside Mininet)")
     parser.add_argument("--port", type=int, default=config.SERVER_PORT)
+    parser.add_argument("--controller", default=config.CONTROLLER_URL,
+                        help="controller URL (on the Mac: http://127.0.0.1:8080)")
     args = parser.parse_args()
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -152,6 +174,15 @@ def main():
     server.bind((args.host, args.port))
     server.listen()
     log("listening on {}:{}".format(args.host, args.port))
+
+    controller.url = args.controller.rstrip("/")
+    if controller.healthy():
+        log("controller OK at {}".format(controller.url))
+    else:
+        log("WARNING: controller not reachable at {} -- every RESERVE will be "
+            "rejected with controller_error until it is up".format(controller.url))
+
+    threading.Thread(target=expiry_loop, name="Expiry", daemon=True).start()
 
     try:
         while True:

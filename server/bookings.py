@@ -162,6 +162,25 @@ class BookingTable:
             del self._bookings[booking_id]
             return "released"
 
+    def remove_expired(self):
+        """Delete every booking whose time has run out. Returns their IDs,
+        so the server can tell the controller to remove their rules."""
+        # TODO 7 (Day 4): inside   with self._lock:
+        #     - make a list of the IDs of bookings that are NOT b.is_active()
+        #       hint: loop over self._bookings.values()  (all bookings, not
+        #       just active ones -- you are looking for the finished ones)
+        #     - delete each of those IDs from self._bookings
+        #     - return the list of IDs
+        #   WHY: _active() already ignores finished bookings when counting, so
+        #   the Mbps are free the moment time runs out. But the controller
+        #   still has their rules on the switches. This tells the server which
+        #   bookings to clean up there, and stops the table growing forever.
+        with self._lock:
+            expired = [b.id for b in self._bookings.values() if not b.is_active()]
+            for booking_id in expired:
+                del self._bookings[booking_id]
+            return expired
+
     def list_active(self):
         with self._lock:
             return [(b.id, b.src, b.dst, b.mbps, b.seconds_left())

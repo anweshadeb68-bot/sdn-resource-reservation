@@ -37,8 +37,13 @@ def main():
     reader = sock.makefile("r", encoding="utf-8", newline="\n")
 
     def ask(line):
-        sock.sendall((line + "\n").encode("utf-8"))
-        reply = reader.readline()
+        # The server may have closed the connection already (e.g. idle
+        # timeout). Sending or reading then fails; report it, don't crash.
+        try:
+            sock.sendall((line + "\n").encode("utf-8"))
+            reply = reader.readline()
+        except (BrokenPipeError, ConnectionResetError):
+            reply = ""
         if not reply:
             print("Server closed the connection")
             return None
