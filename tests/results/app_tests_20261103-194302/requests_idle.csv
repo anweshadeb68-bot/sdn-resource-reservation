@@ -1,0 +1,2 @@
+time,iso_time,client_ip,command,request,category,reason,reply,ms
+1793715185.072,2026-11-03T19:43:05.072,127.0.0.1,STATUS,STATUS,query,,OK STATUS capacity=10 reserved=0 free=8 used=0 active=0,0.348

@@ -1,0 +1,13 @@
+[MainThread] listening on 127.0.0.1:52253
+[MainThread] request log: /Users/anweshadeb/Documents/sdn-resource-reservation/tests/results/app_tests_20261103-194302/requests_idle.csv
+[MainThread] controller OK at http://127.0.0.1:52254
+[Thread-1] connected from 127.0.0.1:52259
+[Thread-1] disconnected
+[Thread-2] connected from 127.0.0.1:52260
+[Thread-3] connected from 127.0.0.1:52261
+[Thread-3] request: STATUS
+[Thread-3] reply:   OK STATUS capacity=10 reserved=0 free=8 used=0 active=0
+[Thread-3] request: QUIT
+[Thread-3] disconnected
+[Thread-2] idle timeout
+[Thread-2] disconnected

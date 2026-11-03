@@ -1,0 +1,53 @@
+time,iso_time,client_ip,command,request,category,reason,reply,ms
+1793715183.857,2026-11-03T19:43:03.856,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,accepted,,OK RESERVED 1 2 120,0.687
+1793715183.858,2026-11-03T19:43:03.858,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,accepted,,OK RESERVED 2 2 120,1.104
+1793715183.859,2026-11-03T19:43:03.859,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,accepted,,OK RESERVED 3 2 120,0.827
+1793715183.859,2026-11-03T19:43:03.859,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.860,2026-11-03T19:43:03.859,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,accepted,,OK RESERVED 4 2 120,0.852
+1793715183.860,2026-11-03T19:43:03.860,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.841
+1793715183.860,2026-11-03T19:43:03.860,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.182
+1793715183.861,2026-11-03T19:43:03.860,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.530
+1793715183.861,2026-11-03T19:43:03.861,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.165
+1793715183.861,2026-11-03T19:43:03.861,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.862,2026-11-03T19:43:03.861,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.862,2026-11-03T19:43:03.861,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.887
+1793715183.862,2026-11-03T19:43:03.861,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.862,2026-11-03T19:43:03.862,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.010
+1793715183.862,2026-11-03T19:43:03.862,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.012
+1793715183.862,2026-11-03T19:43:03.862,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.863,2026-11-03T19:43:03.862,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.863,2026-11-03T19:43:03.862,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.010
+1793715183.863,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.863,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.010
+1793715183.863,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.863,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.864,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.864,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.864,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.006
+1793715183.864,2026-11-03T19:43:03.863,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.864,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.864,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.864,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.864,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.864,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.010
+1793715183.864,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.006
+1793715183.865,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.865,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.006
+1793715183.865,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.865,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.011
+1793715183.865,2026-11-03T19:43:03.864,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.865,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.865,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.865,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.012
+1793715183.865,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.865,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.866,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.866,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.866,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.866,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.866,2026-11-03T19:43:03.865,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.008
+1793715183.866,2026-11-03T19:43:03.866,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.007
+1793715183.867,2026-11-03T19:43:03.866,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.868,2026-11-03T19:43:03.867,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,0.009
+1793715183.868,2026-11-03T19:43:03.868,127.0.0.1,STATUS,STATUS,query,,OK STATUS capacity=10 reserved=8 free=0 used=8 active=4,0.356
+1793715183.868,2026-11-03T19:43:03.868,127.0.0.1,STATS,STATS,query,,OK STATS reserve_requests=50 accepted=4 rejected=46 invalid=0 insufficient_capacity=46 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0,0.007

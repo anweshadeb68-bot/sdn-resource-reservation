@@ -1,0 +1,15 @@
+[MainThread] listening on 127.0.0.1:52275
+[MainThread] request log: /Users/anweshadeb/Documents/sdn-resource-reservation/tests/results/app_tests_20261103-194302/requests_controller_too_slow.csv
+[MainThread] controller OK at http://127.0.0.1:52276
+[Thread-1] connected from 127.0.0.1:52281
+[Thread-1] disconnected
+[Thread-2] connected from 127.0.0.1:52282
+[Thread-2] request: RESERVE h1 h4 5 60
+[Thread-2] reply:   ERR REJECTED controller_error
+[Thread-2] request: QUIT
+[Thread-2] disconnected
+[Thread-3] connected from 127.0.0.1:52284
+[Thread-3] request: STATUS
+[Thread-3] reply:   OK STATUS capacity=10 reserved=0 free=8 used=0 active=0
+[Thread-3] request: QUIT
+[Thread-3] disconnected

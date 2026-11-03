@@ -1,0 +1,13 @@
+time,iso_time,client_ip,command,request,category,reason,reply,ms
+1793715183.155,2026-11-03T19:43:03.155,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,accepted,,OK RESERVED 1 2 120,0.576
+1793715183.155,2026-11-03T19:43:03.155,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,accepted,,OK RESERVED 2 2 120,0.927
+1793715183.156,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,accepted,,OK RESERVED 3 2 120,1.463
+1793715183.156,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,accepted,,OK RESERVED 4 2 120,1.795
+1793715183.157,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,1.334
+1793715183.157,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,1.302
+1793715183.157,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h1 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,1.308
+1793715183.157,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,1.314
+1793715183.157,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h3 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,1.314
+1793715183.157,2026-11-03T19:43:03.156,127.0.0.1,RESERVE,RESERVE h2 h4 2 120,rejected,insufficient_capacity,ERR REJECTED insufficient_capacity,1.331
+1793715183.158,2026-11-03T19:43:03.158,127.0.0.1,STATUS,STATUS,query,,OK STATUS capacity=10 reserved=8 free=0 used=8 active=4,0.422
+1793715183.158,2026-11-03T19:43:03.158,127.0.0.1,STATS,STATS,query,,OK STATS reserve_requests=10 accepted=4 rejected=6 invalid=0 insufficient_capacity=6 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0,0.009

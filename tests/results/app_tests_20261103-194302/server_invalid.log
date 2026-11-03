@@ -1,0 +1,75 @@
+[MainThread] listening on 127.0.0.1:52218
+[MainThread] request log: /Users/anweshadeb/Documents/sdn-resource-reservation/tests/results/app_tests_20261103-194302/requests_invalid.csv
+[MainThread] controller OK at http://127.0.0.1:52219
+[Thread-1] connected from 127.0.0.1:52224
+[Thread-1] disconnected
+[Thread-2] connected from 127.0.0.1:52225
+[Thread-2] request: RESERVE h1 h4 5
+[Thread-2] reply:   ERR BAD_REQUEST wrong_field_count
+[Thread-2] request: QUIT
+[Thread-2] disconnected
+[Thread-3] connected from 127.0.0.1:52226
+[Thread-3] request: RESERVE h9 h4 5 60
+[Thread-3] reply:   ERR BAD_REQUEST unknown_host
+[Thread-3] request: QUIT
+[Thread-3] disconnected
+[Thread-4] connected from 127.0.0.1:52227
+[Thread-4] request: RESERVE h1 h1 5 60
+[Thread-4] reply:   ERR BAD_REQUEST same_host
+[Thread-4] request: QUIT
+[Thread-4] disconnected
+[Thread-5] connected from 127.0.0.1:52228
+[Thread-5] request: RESERVE h1 h4 five 60
+[Thread-5] reply:   ERR BAD_REQUEST not_a_number
+[Thread-5] request: QUIT
+[Thread-5] disconnected
+[Thread-6] connected from 127.0.0.1:52229
+[Thread-6] request: RESERVE h1 h4 2.5 60
+[Thread-6] reply:   ERR BAD_REQUEST not_a_number
+[Thread-6] request: QUIT
+[Thread-6] disconnected
+[Thread-7] connected from 127.0.0.1:52230
+[Thread-7] request: RESERVE h1 h4 9 60
+[Thread-7] reply:   ERR BAD_REQUEST mbps_out_of_range
+[Thread-7] request: QUIT
+[Thread-7] disconnected
+[Thread-8] connected from 127.0.0.1:52231
+[Thread-8] request: RESERVE h1 h4 0 60
+[Thread-8] reply:   ERR BAD_REQUEST mbps_out_of_range
+[Thread-8] request: QUIT
+[Thread-8] disconnected
+[Thread-9] connected from 127.0.0.1:52232
+[Thread-9] request: RESERVE h1 h4 5 5
+[Thread-9] reply:   ERR BAD_REQUEST seconds_out_of_range
+[Thread-9] request: QUIT
+[Thread-9] disconnected
+[Thread-10] connected from 127.0.0.1:52233
+[Thread-10] request: RESERVE h1 h4 5 601
+[Thread-10] reply:   ERR BAD_REQUEST seconds_out_of_range
+[Thread-10] request: QUIT
+[Thread-10] disconnected
+[Thread-11] connected from 127.0.0.1:52234
+[Thread-11] request: RELEASE abc
+[Thread-11] reply:   ERR BAD_REQUEST usage: RELEASE <id>
+[Thread-11] request: QUIT
+[Thread-11] disconnected
+[Thread-12] connected from 127.0.0.1:52235
+[Thread-12] request: RELEASE 42
+[Thread-12] reply:   ERR NOT_FOUND 42
+[Thread-12] request: QUIT
+[Thread-12] disconnected
+[Thread-13] connected from 127.0.0.1:52236
+[Thread-13] request: reserve h1 h4 5 60
+[Thread-13] reply:   ERR BAD_REQUEST unknown_command
+[Thread-13] request: QUIT
+[Thread-13] disconnected
+[Thread-14] connected from 127.0.0.1:52237
+[Thread-14] request: FLY TO MARS
+[Thread-14] reply:   ERR BAD_REQUEST unknown_command
+[Thread-14] request: QUIT
+[Thread-14] disconnected
+[Thread-15] connected from 127.0.0.1:52238
+[Thread-15] request: STATUS
+[Thread-15] reply:   OK STATUS capacity=10 reserved=0 free=8 used=0 active=0
+[Thread-15] request: QUIT
+[Thread-15] disconnected

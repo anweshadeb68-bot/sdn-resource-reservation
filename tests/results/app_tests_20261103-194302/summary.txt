@@ -1,0 +1,17 @@
+Application tests, 2026-11-03T19:43:10
+Controller: SIMULATED (tests/fake_controller.py). Not SDN enforcement.
+
+load_10                    PASS  4 accepted, 6 rejected, 0 errors; 8 of 8 Mbps booked; median 3.4 ms, worst 4.1 ms
+load_10_stats              PASS  STATS accepted=4 rejected=6; log 4/6
+load_25                    PASS  4 accepted, 21 rejected, 0 errors; 8 of 8 Mbps booked; median 4.9 ms, worst 6.6 ms
+load_25_stats              PASS  STATS accepted=4 rejected=21; log 4/21
+load_50                    PASS  4 accepted, 46 rejected, 0 errors; 8 of 8 Mbps booked; median 8.2 ms, worst 12.1 ms
+load_50_stats              PASS  STATS accepted=4 rejected=46; log 4/46
+invalid                    PASS  13 of 13 bad requests got the expected reply; nothing booked: True
+disconnect                 PASS  server still answers; half-sent request was not processed: True
+idle                       PASS  silent client closed after 2.0 s; another client served in 0.7 ms
+controller_refuses         PASS  ERR REJECTED controller_error in 1 ms; nothing booked: True
+controller_too_slow        PASS  ERR REJECTED controller_error in 3003 ms; nothing booked: True
+controller_down            PASS  ERR REJECTED controller_error in 1 ms; nothing booked: True
+
+12 of 12 cases passed

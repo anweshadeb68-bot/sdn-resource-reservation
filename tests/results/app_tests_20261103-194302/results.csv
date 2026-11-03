@@ -1,0 +1,111 @@
+case,condition,request,reply,ms,expected,result
+load_10,"10 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,OK RESERVED 3 2 120,2.88,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.14,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,3.90,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,OK RESERVED 4 2 120,3.32,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,OK RESERVED 2 2 120,2.37,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,3.85,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,3.52,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,3.52,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,3.23,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10,"10 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,OK RESERVED 1 2 120,2.36,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_10_stats,STATS vs request log,STATS,OK STATS reserve_requests=10 accepted=4 rejected=6 invalid=0 insufficient_capacity=6 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0,0.30,counts equal the CSV rows,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,5.34,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.23,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,OK RESERVED 3 2 120,5.80,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.58,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,5.31,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,4.50,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,4.33,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.25,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,OK RESERVED 2 2 120,3.08,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,OK RESERVED 1 2 120,2.63,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,6.34,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,OK RESERVED 4 2 120,4.95,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.26,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,3.89,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,6.11,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.39,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.84,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,5.71,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,5.84,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.11,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,4.54,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.35,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.48,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,3.94,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25,"25 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,5.55,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_25_stats,STATS vs request log,STATS,OK STATS reserve_requests=25 accepted=4 rejected=21 invalid=0 insufficient_capacity=21 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0,0.25,counts equal the CSV rows,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,9.51,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,6.31,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,8.13,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,4.78,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,8.35,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,7.35,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,5.68,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,6.46,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,10.80,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,7.48,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,6.52,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,8.59,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,9.84,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,12.11,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,10.46,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.96,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,4.85,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,OK RESERVED 2 2 120,3.60,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,9.31,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,7.63,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,6.88,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,10.49,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,5.59,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,7.80,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,OK RESERVED 1 2 120,2.34,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,6.43,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,9.78,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.31,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,9.11,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,11.03,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,8.28,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,7.49,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,7.60,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,9.67,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,9.10,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,OK RESERVED 3 2 120,4.20,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,9.50,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,10.88,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,10.58,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,10.18,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,9.13,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,10.52,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,4.73,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,10.78,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,ERR REJECTED insufficient_capacity,9.77,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,6.53,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,8.52,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h3 h4 2 120,OK RESERVED 4 2 120,4.85,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h1 h4 2 120,ERR REJECTED insufficient_capacity,7.28,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50,"50 clients at once, 2 Mbps each",RESERVE h2 h4 2 120,ERR REJECTED insufficient_capacity,10.94,OK RESERVED or ERR REJECTED insufficient_capacity,PASS
+load_50_stats,STATS vs request log,STATS,OK STATS reserve_requests=50 accepted=4 rejected=46 invalid=0 insufficient_capacity=46 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0,0.24,counts equal the CSV rows,PASS
+invalid,bad input,RESERVE h1 h4 5,ERR BAD_REQUEST wrong_field_count,0.42,ERR BAD_REQUEST wrong_field_count,PASS
+invalid,bad input,RESERVE h9 h4 5 60,ERR BAD_REQUEST unknown_host,0.33,ERR BAD_REQUEST unknown_host,PASS
+invalid,bad input,RESERVE h1 h1 5 60,ERR BAD_REQUEST same_host,0.26,ERR BAD_REQUEST same_host,PASS
+invalid,bad input,RESERVE h1 h4 five 60,ERR BAD_REQUEST not_a_number,0.26,ERR BAD_REQUEST not_a_number,PASS
+invalid,bad input,RESERVE h1 h4 2.5 60,ERR BAD_REQUEST not_a_number,0.24,ERR BAD_REQUEST not_a_number,PASS
+invalid,bad input,RESERVE h1 h4 9 60,ERR BAD_REQUEST mbps_out_of_range,0.23,ERR BAD_REQUEST mbps_out_of_range,PASS
+invalid,bad input,RESERVE h1 h4 0 60,ERR BAD_REQUEST mbps_out_of_range,0.25,ERR BAD_REQUEST mbps_out_of_range,PASS
+invalid,bad input,RESERVE h1 h4 5 5,ERR BAD_REQUEST seconds_out_of_range,0.23,ERR BAD_REQUEST seconds_out_of_range,PASS
+invalid,bad input,RESERVE h1 h4 5 601,ERR BAD_REQUEST seconds_out_of_range,0.24,ERR BAD_REQUEST seconds_out_of_range,PASS
+invalid,bad input,RELEASE abc,ERR BAD_REQUEST usage: RELEASE <id>,0.21,ERR BAD_REQUEST usage: RELEASE <id>,PASS
+invalid,bad input,RELEASE 42,ERR NOT_FOUND 42,0.23,ERR NOT_FOUND 42,PASS
+invalid,bad input,reserve h1 h4 5 60,ERR BAD_REQUEST unknown_command,0.26,ERR BAD_REQUEST unknown_command,PASS
+invalid,bad input,FLY TO MARS,ERR BAD_REQUEST unknown_command,0.22,ERR BAD_REQUEST unknown_command,PASS
+disconnect,after 3 broken clients,STATUS,OK STATUS capacity=10 reserved=0 free=8 used=0 active=0,4.94,OK STATUS ...,PASS
+idle,"silent client, timeout 2 s",(nothing sent),closed by server,2001.52,closed after about 2 s,PASS
+idle,other client meanwhile,STATUS,OK STATUS capacity=10 reserved=0 free=8 used=0 active=0,0.73,OK STATUS ...,PASS
+controller_refuses,refuses,RESERVE h1 h4 5 60,ERR REJECTED controller_error,0.93,ERR REJECTED controller_error,PASS
+controller_refuses,refuses,STATUS,OK STATUS capacity=10 reserved=0 free=8 used=0 active=0,0.00,reserved=0,PASS
+controller_too_slow,too_slow,RESERVE h1 h4 5 60,ERR REJECTED controller_error,3003.15,ERR REJECTED controller_error,PASS
+controller_too_slow,too_slow,STATUS,OK STATUS capacity=10 reserved=0 free=8 used=0 active=0,0.00,reserved=0,PASS
+controller_down,down,RESERVE h1 h4 5 60,ERR REJECTED controller_error,0.55,ERR REJECTED controller_error,PASS
+controller_down,down,STATUS,OK STATUS capacity=10 reserved=0 free=8 used=unknown active=0,0.00,reserved=0,PASS

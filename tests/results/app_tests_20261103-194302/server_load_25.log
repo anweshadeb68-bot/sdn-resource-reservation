@@ -1,0 +1,140 @@
+[MainThread] listening on 127.0.0.1:52115
+[MainThread] request log: /Users/anweshadeb/Documents/sdn-resource-reservation/tests/results/app_tests_20261103-194302/requests_load_25.csv
+[MainThread] controller OK at http://127.0.0.1:52116
+[Thread-1] connected from 127.0.0.1:52121
+[Thread-1] disconnected
+[Thread-2] connected from 127.0.0.1:52122
+[Thread-3] connected from 127.0.0.1:52123
+[Thread-4] connected from 127.0.0.1:52124
+[Thread-5] connected from 127.0.0.1:52125
+[Thread-6] connected from 127.0.0.1:52126
+[Thread-6] request: RESERVE h1 h4 2 120
+[Thread-7] connected from 127.0.0.1:52127
+[Thread-3] request: RESERVE h3 h4 2 120
+[Thread-5] request: RESERVE h3 h4 2 120
+[Thread-8] connected from 127.0.0.1:52128
+[Thread-9] connected from 127.0.0.1:52129
+[Thread-2] request: RESERVE h3 h4 2 120
+[Thread-10] connected from 127.0.0.1:52130
+[Thread-8] request: RESERVE h2 h4 2 120
+[Thread-9] request: RESERVE h3 h4 2 120
+[Thread-6] reply:   OK RESERVED 1 2 120
+[Thread-10] request: RESERVE h3 h4 2 120
+[Thread-7] request: RESERVE h3 h4 2 120
+[Thread-13] connected from 127.0.0.1:52133
+[Thread-14] connected from 127.0.0.1:52134
+[Thread-15] connected from 127.0.0.1:52135
+[Thread-3] reply:   OK RESERVED 2 2 120
+[Thread-11] connected from 127.0.0.1:52131
+[Thread-4] request: RESERVE h2 h4 2 120
+[Thread-17] connected from 127.0.0.1:52137
+[Thread-15] request: RESERVE h2 h4 2 120
+[Thread-16] connected from 127.0.0.1:52136
+[Thread-13] request: RESERVE h1 h4 2 120
+[Thread-20] connected from 127.0.0.1:52140
+[Thread-21] connected from 127.0.0.1:52141
+[Thread-12] connected from 127.0.0.1:52132
+[Thread-6] request: QUIT
+[Thread-18] connected from 127.0.0.1:52138
+[Thread-3] request: QUIT
+[Thread-24] connected from 127.0.0.1:52145
+[Thread-25] connected from 127.0.0.1:52146
+[Thread-14] request: RESERVE h2 h4 2 120
+[Thread-8] reply:   ERR REJECTED insufficient_capacity
+[Thread-10] reply:   ERR REJECTED insufficient_capacity
+[Thread-4] reply:   ERR REJECTED insufficient_capacity
+[Thread-13] reply:   ERR REJECTED insufficient_capacity
+[Thread-20] request: RESERVE h3 h4 2 120
+[Thread-21] request: RESERVE h2 h4 2 120
+[Thread-12] request: RESERVE h2 h4 2 120
+[Thread-23] connected from 127.0.0.1:52144
+[Thread-19] connected from 127.0.0.1:52139
+[Thread-16] request: RESERVE h2 h4 2 120
+[Thread-3] disconnected
+[Thread-10] request: QUIT
+[Thread-14] reply:   ERR REJECTED insufficient_capacity
+[Thread-7] reply:   ERR REJECTED insufficient_capacity
+[Thread-26] connected from 127.0.0.1:52147
+[Thread-20] reply:   ERR REJECTED insufficient_capacity
+[Thread-21] reply:   ERR REJECTED insufficient_capacity
+[Thread-12] reply:   ERR REJECTED insufficient_capacity
+[Thread-23] request: RESERVE h3 h4 2 120
+[Thread-19] request: RESERVE h1 h4 2 120
+[Thread-16] reply:   ERR REJECTED insufficient_capacity
+[Thread-11] request: RESERVE h1 h4 2 120
+[Thread-2] reply:   OK RESERVED 4 2 120
+[Thread-10] disconnected
+[Thread-4] request: QUIT
+[Thread-26] request: RESERVE h1 h4 2 120
+[Thread-17] request: RESERVE h1 h4 2 120
+[Thread-18] request: RESERVE h1 h4 2 120
+[Thread-13] request: QUIT
+[Thread-19] reply:   ERR REJECTED insufficient_capacity
+[Thread-14] request: QUIT
+[Thread-11] reply:   ERR REJECTED insufficient_capacity
+[Thread-15] reply:   ERR REJECTED insufficient_capacity
+[Thread-5] reply:   OK RESERVED 3 2 120
+[Thread-26] reply:   ERR REJECTED insufficient_capacity
+[Thread-7] request: QUIT
+[Thread-23] reply:   ERR REJECTED insufficient_capacity
+[Thread-24] request: RESERVE h1 h4 2 120
+[Thread-8] request: QUIT
+[Thread-13] disconnected
+[Thread-9] reply:   ERR REJECTED insufficient_capacity
+[Thread-14] disconnected
+[Thread-6] disconnected
+[Thread-12] request: QUIT
+[Thread-20] request: QUIT
+[Thread-24] reply:   ERR REJECTED insufficient_capacity
+[Thread-25] request: RESERVE h2 h4 2 120
+[Thread-22] connected from 127.0.0.1:52142
+[Thread-16] request: QUIT
+[Thread-17] reply:   ERR REJECTED insufficient_capacity
+[Thread-7] disconnected
+[Thread-12] disconnected
+[Thread-20] disconnected
+[Thread-25] reply:   ERR REJECTED insufficient_capacity
+[Thread-22] request: RESERVE h1 h4 2 120
+[Thread-18] reply:   ERR REJECTED insufficient_capacity
+[Thread-21] request: QUIT
+[Thread-11] request: QUIT
+[Thread-4] disconnected
+[Thread-22] reply:   ERR REJECTED insufficient_capacity
+[Thread-19] request: QUIT
+[Thread-2] request: QUIT
+[Thread-16] disconnected
+[Thread-21] disconnected
+[Thread-15] request: QUIT
+[Thread-11] disconnected
+[Thread-5] request: QUIT
+[Thread-19] disconnected
+[Thread-2] disconnected
+[Thread-8] disconnected
+[Thread-15] disconnected
+[Thread-5] disconnected
+[Thread-23] request: QUIT
+[Thread-9] request: QUIT
+[Thread-26] request: QUIT
+[Thread-23] disconnected
+[Thread-9] disconnected
+[Thread-26] disconnected
+[Thread-24] request: QUIT
+[Thread-17] request: QUIT
+[Thread-24] disconnected
+[Thread-17] disconnected
+[Thread-25] request: QUIT
+[Thread-25] disconnected
+[Thread-18] request: QUIT
+[Thread-18] disconnected
+[Thread-22] request: QUIT
+[Thread-22] disconnected
+[Thread-27] connected from 127.0.0.1:52151
+[Thread-27] request: STATUS
+[Thread-27] reply:   OK STATUS capacity=10 reserved=8 free=0 used=8 active=4
+[Thread-27] request: QUIT
+[Thread-27] disconnected
+[Thread-28] connected from 127.0.0.1:52153
+[Thread-28] request: STATS
+[Thread-28] reply:   OK STATS reserve_requests=25 accepted=4 rejected=21 invalid=0 insufficient_capacity=21 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0
+[Thread-28] request: QUIT
+[Thread-28] disconnected

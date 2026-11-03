@@ -1,0 +1,15 @@
+[MainThread] listening on 127.0.0.1:52286
+[MainThread] request log: /Users/anweshadeb/Documents/sdn-resource-reservation/tests/results/app_tests_20261103-194302/requests_controller_down.csv
+[MainThread] WARNING: controller not reachable at http://127.0.0.1:52287 -- every RESERVE will be rejected with controller_error until it is up
+[Thread-1] connected from 127.0.0.1:52290
+[Thread-1] disconnected
+[Thread-2] connected from 127.0.0.1:52291
+[Thread-2] request: RESERVE h1 h4 5 60
+[Thread-2] reply:   ERR REJECTED controller_error
+[Thread-2] request: QUIT
+[Thread-2] disconnected
+[Thread-3] connected from 127.0.0.1:52293
+[Thread-3] request: STATUS
+[Thread-3] reply:   OK STATUS capacity=10 reserved=0 free=8 used=unknown active=0
+[Thread-3] request: QUIT
+[Thread-3] disconnected

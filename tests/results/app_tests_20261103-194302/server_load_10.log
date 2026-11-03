@@ -1,0 +1,65 @@
+[MainThread] listening on 127.0.0.1:52089
+[MainThread] request log: /Users/anweshadeb/Documents/sdn-resource-reservation/tests/results/app_tests_20261103-194302/requests_load_10.csv
+[MainThread] controller OK at http://127.0.0.1:52090
+[Thread-1] connected from 127.0.0.1:52097
+[Thread-1] disconnected
+[Thread-2] connected from 127.0.0.1:52098
+[Thread-3] connected from 127.0.0.1:52099
+[Thread-4] connected from 127.0.0.1:52100
+[Thread-5] connected from 127.0.0.1:52101
+[Thread-4] request: RESERVE h1 h4 2 120
+[Thread-3] request: RESERVE h2 h4 2 120
+[Thread-5] request: RESERVE h1 h4 2 120
+[Thread-2] request: RESERVE h1 h4 2 120
+[Thread-7] connected from 127.0.0.1:52103
+[Thread-6] connected from 127.0.0.1:52102
+[Thread-10] connected from 127.0.0.1:52106
+[Thread-9] connected from 127.0.0.1:52105
+[Thread-11] connected from 127.0.0.1:52107
+[Thread-6] request: RESERVE h3 h4 2 120
+[Thread-10] request: RESERVE h2 h4 2 120
+[Thread-9] request: RESERVE h2 h4 2 120
+[Thread-8] connected from 127.0.0.1:52104
+[Thread-7] request: RESERVE h1 h4 2 120
+[Thread-11] request: RESERVE h3 h4 2 120
+[Thread-8] request: RESERVE h3 h4 2 120
+[Thread-4] reply:   OK RESERVED 1 2 120
+[Thread-3] reply:   OK RESERVED 2 2 120
+[Thread-4] request: QUIT
+[Thread-4] disconnected
+[Thread-3] request: QUIT
+[Thread-3] disconnected
+[Thread-5] reply:   OK RESERVED 3 2 120
+[Thread-5] request: QUIT
+[Thread-5] disconnected
+[Thread-2] reply:   OK RESERVED 4 2 120
+[Thread-6] reply:   ERR REJECTED insufficient_capacity
+[Thread-10] reply:   ERR REJECTED insufficient_capacity
+[Thread-7] reply:   ERR REJECTED insufficient_capacity
+[Thread-8] reply:   ERR REJECTED insufficient_capacity
+[Thread-11] reply:   ERR REJECTED insufficient_capacity
+[Thread-9] reply:   ERR REJECTED insufficient_capacity
+[Thread-2] request: QUIT
+[Thread-2] disconnected
+[Thread-6] request: QUIT
+[Thread-6] disconnected
+[Thread-10] request: QUIT
+[Thread-7] request: QUIT
+[Thread-10] disconnected
+[Thread-7] disconnected
+[Thread-8] request: QUIT
+[Thread-8] disconnected
+[Thread-11] request: QUIT
+[Thread-11] disconnected
+[Thread-9] request: QUIT
+[Thread-9] disconnected
+[Thread-12] connected from 127.0.0.1:52112
+[Thread-12] request: STATUS
+[Thread-12] reply:   OK STATUS capacity=10 reserved=8 free=0 used=8 active=4
+[Thread-12] request: QUIT
+[Thread-12] disconnected
+[Thread-13] connected from 127.0.0.1:52114
+[Thread-13] request: STATS
+[Thread-13] reply:   OK STATS reserve_requests=10 accepted=4 rejected=6 invalid=0 insufficient_capacity=6 max_reservations=0 controller_error=0 released=0 forbidden=0 not_found=0 queries=1 bad_commands=0 log_errors=0
+[Thread-13] request: QUIT
+[Thread-13] disconnected
