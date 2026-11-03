@@ -1,11 +1,13 @@
 """Reservation server (Member A).
 
-Day 2 version: accepts clients, reads one command per line, replies one line.
-Booking logic comes on Day 3 (server/bookings.py); for now RESERVE etc.
-send placeholder replies.
+Accepts many clients at once (one thread each), reads one command per line and
+replies with one line. Commands: RESERVE, RELEASE, STATUS, LIST, STATS, QUIT.
 
-Run on your Mac:        python3.9 server/server.py
+Run on your Mac:        python3.9 server/server.py --controller http://127.0.0.1:8080
 Run inside Mininet h4:  python3 server/server.py --host 0.0.0.0
+
+D2: every answered request is written to logs/requests.csv (see
+server/request_log.py) and counted; STATS returns those counts.
 """
 
 import argparse
@@ -20,8 +22,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from common import config  # noqa: E402
 from bookings import BookingTable  # noqa: E402  (server/bookings.py)
 from controller_client import ControllerClient  # noqa: E402  (server/controller_client.py)
+from request_log import RequestLog  # noqa: E402  (server/request_log.py)
 
-IDLE_TIMEOUT_S = 60  # close a connection that sends nothing for this long
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+DEFAULT_REQUEST_LOG = os.path.join(PROJECT_ROOT, "logs", "requests.csv")
+
+IDLE_TIMEOUT_S = 60  # close a connection that sends nothing for this long (--idle-timeout)
 
 EXPIRY_CHECK_S = 1   # how often the expiry thread looks for finished bookings
 
@@ -31,6 +37,9 @@ controller = ControllerClient()
 # One shared table for all threads. Before saving a booking, the table asks
 # the controller to install it (the "Approved booking" arrow on the diagram).
 table = BookingTable(enforce=controller.install)
+
+# Request log and outcome counters (D2). main() sets the file from --request-log.
+requests_log = RequestLog(None)
 
 
 def log(msg):
@@ -100,6 +109,10 @@ def handle_request(line, client_ip):
         return "OK STATUS capacity={} reserved={} free={:g} used={} active={}".format(
             st["capacity"], st["reserved"], st["free"], used_text, st["active"])
 
+    if command == "STATS":
+        # Read-only summary of request outcomes since the server started.
+        return requests_log.stats_reply()
+
     if command == "LIST":
         items = table.list_active()
         fields = ["{}:{}>{}:{}:{}".format(*item) for item in items]
@@ -125,13 +138,21 @@ def handle_client(conn, addr):
     reader = conn.makefile("r", encoding="utf-8", newline="\n")
     try:
         for raw in reader:                 # one iteration per line received
+            if not raw.endswith("\n"):
+                # The client hung up in the middle of a line. A message is only
+                # complete with its newline, so never act on half a request.
+                log("incomplete line ignored (client closed mid-message): {!r}".format(raw))
+                break
             line = raw.strip()
             log("request: {}".format(line))
             if line == "QUIT":
                 send_line(conn, "OK BYE")
                 break
+            started = time.perf_counter()
             reply = handle_request(line, client_ip)
+            elapsed_ms = (time.perf_counter() - started) * 1000
             log("reply:   {}".format(reply))
+            requests_log.record(client_ip, line, reply, elapsed_ms)
             send_line(conn, reply)
     except socket.timeout:
         log("idle timeout")
@@ -161,19 +182,30 @@ def expiry_loop():
 
 
 def main():
+    global requests_log, IDLE_TIMEOUT_S
     parser = argparse.ArgumentParser(description="Network resource reservation server")
     parser.add_argument("--host", default="127.0.0.1",
                         help="address to listen on (use 0.0.0.0 inside Mininet)")
     parser.add_argument("--port", type=int, default=config.SERVER_PORT)
     parser.add_argument("--controller", default=config.CONTROLLER_URL,
                         help="controller URL (on the Mac: http://127.0.0.1:8080)")
+    parser.add_argument("--request-log", default=DEFAULT_REQUEST_LOG,
+                        help="CSV file for one row per request (default logs/requests.csv)")
+    parser.add_argument("--no-request-log", action="store_true",
+                        help="keep the STATS counters but write no CSV file")
+    parser.add_argument("--idle-timeout", type=float, default=IDLE_TIMEOUT_S,
+                        help="seconds of silence before a client is disconnected")
     args = parser.parse_args()
+
+    IDLE_TIMEOUT_S = args.idle_timeout
+    requests_log = RequestLog(None if args.no_request_log else args.request_log)
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind((args.host, args.port))
     server.listen()
     log("listening on {}:{}".format(args.host, args.port))
+    log("request log: {}".format("off" if args.no_request_log else args.request_log))
 
     controller.url = args.controller.rstrip("/")
     if controller.healthy():

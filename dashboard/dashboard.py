@@ -4,14 +4,20 @@ The browser talks to this small web backend; this backend talks to the
 reservation server with the SAME TCP commands as client/client.py
 (RESERVE, RELEASE, STATUS, LIST). Nothing in the server changes.
 
-On the Mac (server running locally):
-    python3.9 dashboard/dashboard.py
+On the Mac (server and fake controller running locally):
+    python3.9 dashboard/dashboard.py --controller http://127.0.0.1:8080
     then open http://127.0.0.1:8000
 
-In the VM (server running on h4 inside Mininet), reached over the
-management link:
+In the VM (server running on h4 inside Mininet, reached over the
+management link; the controller runs on the VM itself):
     python3 dashboard/dashboard.py --server 192.168.100.4
     then open http://127.0.0.1:8000 in the VM's browser
+
+D2 additions (read-only, nothing is changed on the server or controller):
+  * link usage, reserved total and the congestion policy status come from the
+    controller's GET /stats/links (the "d2_congestion" block, if present);
+  * request counts come from the server's STATS command, once the server has it.
+    Until then the page says the counts are not available.
 
 Standard library only.
 """
@@ -21,6 +27,8 @@ import json
 import os
 import socket
 import sys
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +36,10 @@ sys.path.insert(0, os.path.join(HERE, ".."))
 from common import config  # noqa: E402
 
 SERVER = {"host": "127.0.0.1", "port": config.SERVER_PORT}
+CONTROLLER = {"url": config.CONTROLLER_URL.rstrip("/")}
+
+# Ignore any proxy settings: the controller is always reached directly.
+_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 FRIENDLY = {
     "insufficient_capacity": "Not enough room on the Moon link for that booking.",
@@ -80,6 +92,56 @@ def parse_list(reply):
     return bookings
 
 
+def parse_stats(reply):
+    """Request counts from the server's STATS reply, or None if unavailable.
+
+    Expected shape (agreed with Member A):
+    OK STATS reserve_requests=12 accepted=7 rejected=3 invalid=2 insufficient_capacity=2 ...
+    Every key=value pair is passed through, so new counters need no change here.
+    """
+    if not reply or not reply.startswith("OK STATS"):
+        return None
+    counts = {}
+    for part in reply.split()[2:]:
+        if "=" in part:
+            key, value = part.split("=", 1)
+            try:
+                counts[key] = int(value)
+            except ValueError:
+                counts[key] = value
+    return counts
+
+
+def ask_controller():
+    """Link figures and congestion-policy status from the controller (read-only).
+
+    Returns {"ok": False} if the controller cannot be reached, and
+    {"ok": True, "link": None} if it answers but has no fresh measurement yet.
+    """
+    try:
+        with _opener.open(CONTROLLER["url"] + "/stats/links", timeout=1.5) as resp:
+            data = json.loads(resp.read() or b"{}")
+    except urllib.error.HTTPError as e:
+        # 503 = controller up, but no fresh measurement yet (switches not ready).
+        return {"ok": True, "link": None, "note": "no fresh measurement yet (HTTP %d)" % e.code}
+    except (urllib.error.URLError, OSError, ValueError):
+        return {"ok": False}
+    link = next((item for item in data.get("links", []) if item.get("link") == "s1-s2"), None)
+    if link is None:
+        return {"ok": True, "link": None, "note": "no s1-s2 figures in the reply"}
+    used_forward = link.get("used_mbps_s1_to_s2")
+    return {
+        "ok": True,
+        "link": {
+            "used_mbps": link.get("used_mbps"),
+            # Moon -> Earth direction, the one the bookings and the flood use.
+            "used_moon_to_earth": used_forward if used_forward is not None else link.get("used_mbps"),
+            "reserved_mbps": link.get("reserved_mbps"),
+        },
+        "policy": link.get("d2_congestion"),   # None for controllers without D2
+    }
+
+
 def explain(reply):
     """Turn a server reply into (ok, sentence for the page)."""
     if reply is None:
@@ -122,15 +184,18 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/state":
             status_reply = ask_server("STATUS")
             list_reply = ask_server("LIST")
+            controller = ask_controller()
             if not (status_reply and status_reply.startswith("OK STATUS")
                     and list_reply and list_reply.startswith("OK LIST")):
-                return self._send(200, {"server_ok": False})
+                return self._send(200, {"server_ok": False, "controller": controller})
             state = parse_status(status_reply)
             state.update({
                 "server_ok": True,
                 "reservable": config.LINKS["s1-s2"] * config.RESERVABLE_SHARE,
                 "max_active": config.MAX_ACTIVE,
                 "bookings": parse_list(list_reply),
+                "controller": controller,
+                "requests": parse_stats(ask_server("STATS")),
                 "labels": config.HOST_LABELS,
                 "limits": {"min_mbps": config.MIN_MBPS, "max_mbps": config.MAX_MBPS,
                            "min_s": config.MIN_SECONDS, "max_s": config.MAX_SECONDS},
@@ -157,11 +222,15 @@ def main():
     parser.add_argument("--server", default="127.0.0.1",
                         help="reservation server address (192.168.100.4 from the VM)")
     parser.add_argument("--port", type=int, default=8000, help="web page port")
+    parser.add_argument("--controller", default=config.CONTROLLER_URL,
+                        help="controller web interface for link and policy status "
+                             "(on the Mac with the fake controller: http://127.0.0.1:8080)")
     args = parser.parse_args()
     SERVER["host"] = args.server
+    CONTROLLER["url"] = args.controller.rstrip("/")
     web = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print("Dashboard on http://127.0.0.1:{}  (reservation server {}:{})".format(
-        args.port, SERVER["host"], SERVER["port"]), flush=True)
+    print("Dashboard on http://127.0.0.1:{}  (reservation server {}:{}, controller {})".format(
+        args.port, SERVER["host"], SERVER["port"], CONTROLLER["url"]), flush=True)
     try:
         web.serve_forever()
     except KeyboardInterrupt:

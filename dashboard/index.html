@@ -179,8 +179,49 @@
   .log time { font-variant-numeric: tabular-nums; margin-right: 10px; color: var(--text); }
   .log .bad { color: var(--oxide); }
 
+  /* ---- D2: live link chart ---- */
+  .chart-panel { margin-top: 30px; }
+  .chart-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 10px; }
+  .chart-head h2 { margin: 0; }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+  .keys span { display: inline-flex; align-items: center; gap: 7px; }
+  .keys i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+  .keys i.band { height: 10px; background: rgba(155,140,255,.28); border: 1px solid rgba(155,140,255,.6); }
+  .chart-box { overflow-x: auto; }
+  #chart { display: block; width: 100%; min-width: 560px; height: auto; }
+  #chart text { font: 500 13px var(--body); fill: var(--muted); }
+  .chart-note { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+
+  /* ---- D2: network control + request counts ---- */
+  .panels.second { margin-top: 26px; grid-template-columns: 1fr 1fr; }
+  .status-line { display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 0 0 14px; }
+  .status-line .lamp { flex: none; }
+  .status-line.down { color: var(--oxide); }
+  .status-line.down .lamp { background: var(--oxide); box-shadow: 0 0 10px var(--oxide); }
+  .status-line.warn { color: var(--eva); }
+  .status-line.warn .lamp { background: var(--eva); box-shadow: 0 0 10px var(--eva); }
+  .status-line.ok { color: var(--lab); }
+  .policy { border: 1px solid var(--line); background: rgba(5,7,13,.45); padding: 14px 16px; }
+  .policy.on { border-color: var(--base); background: rgba(155,140,255,.10); }
+  .policy b { display: block; font: 400 17px/1.3 var(--display); letter-spacing: .03em; margin-bottom: 4px; }
+  .policy p { margin: 0; color: var(--muted); font-size: 15px; }
+  .ingress { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+  .ingress li { display: grid; grid-template-columns: minmax(0, 150px) 1fr 76px; align-items: center; gap: 10px; font-size: 15px; }
+  .ingress .bar { height: 8px; background: rgba(160,180,220,.12); border-radius: 4px; overflow: hidden; }
+  .ingress .bar span { display: block; height: 100%; border-radius: 4px; }
+  .ingress em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
+  .small-note { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+  .counts div { padding: 12px 14px; border-left: 1px solid var(--line); }
+  .counts div:first-child { border-left: 0; }
+  .counts b { display: block; font: 400 26px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+  .counts span { color: var(--muted); font-size: 14px; }
+  .reasons { list-style: none; margin: 14px 0 0; padding: 0; font-size: 15px; }
+  .reasons li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .reasons li span:last-child { font-variant-numeric: tabular-nums; }
+
   @media (max-width: 760px) {
-    .panels { grid-template-columns: 1fr; }
+    .panels, .panels.second { grid-template-columns: 1fr; }
     .facts { grid-template-columns: repeat(2, 1fr); }
     .facts div:nth-child(3) { border-left: 0; }
     .facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
@@ -205,7 +246,7 @@
     <div class="facts">
       <div><b id="fCap">10 Mbps</b><span>Moon–Earth link</span></div>
       <div><b id="fBook">8 Mbps</b><span>can be booked</span></div>
-      <div><b id="fKept">2 Mbps</b><span>always kept free</span></div>
+      <div><b id="fKept">2 Mbps</b><span>never offered for booking</span></div>
       <div><b id="fLanes">0 / 8</b><span>protected lanes in use</span></div>
     </div>
   </div>
@@ -215,6 +256,21 @@
     <div class="pipe" id="pipe" role="img" aria-label="Link usage"></div>
     <div class="scale" id="scale"></div>
     <p class="summary" id="summary">&nbsp;</p>
+  </section>
+
+  <section class="panel chart-panel" aria-labelledby="chartTitle">
+    <div class="chart-head">
+      <h2 id="chartTitle">Moon link, last 2 minutes</h2>
+      <div class="keys" aria-hidden="true">
+        <span><i style="background:var(--lab)"></i>Measured traffic, Moon to Earth</span>
+        <span><i style="background:var(--eva)"></i>Booked</span>
+        <span><i class="band"></i>Congestion limit active</span>
+      </div>
+    </div>
+    <div class="chart-box">
+      <svg id="chart" viewBox="0 0 1000 270" role="img" aria-label="Measured and booked traffic on the Moon link over the last two minutes"></svg>
+    </div>
+    <p class="chart-note" id="chartNote">Collecting readings…</p>
   </section>
   <div class="horizon" aria-hidden="true"></div>
 
@@ -253,6 +309,30 @@
         <h3>Recent activity</h3>
         <ol id="log"></ol>
       </div>
+    </section>
+  </div>
+
+  <div class="panels second">
+    <section class="panel" aria-labelledby="ctrlTitle">
+      <h2 id="ctrlTitle">Network control</h2>
+      <p class="status-line" id="ctrlState"><span class="lamp"></span><span id="ctrlText">Checking the controller…</span></p>
+      <div class="policy" id="policy">
+        <b id="policyTitle">Congestion policy</b>
+        <p id="policyText">Waiting for the controller's status.</p>
+      </div>
+      <ul class="ingress" id="ingress" aria-label="Traffic each module is sending into the base switch"></ul>
+      <p class="small-note" id="policyNote"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="reqTitle">
+      <h2 id="reqTitle">Booking requests</h2>
+      <div class="counts">
+        <div><b id="cAcc">–</b><span>accepted</span></div>
+        <div><b id="cRej">–</b><span>rejected</span></div>
+        <div><b id="cInv">–</b><span>invalid</span></div>
+      </div>
+      <ul class="reasons" id="reasons"></ul>
+      <p class="small-note" id="reqNote">Counts appear once the server supports the STATS command.</p>
     </section>
   </div>
 </div>
@@ -306,9 +386,11 @@ function addLog(text, bad) {
 
 function render(state) {
   const ls = $("linkState");
+  renderController(state.controller);
   if (!state.server_ok) {
     ls.classList.add("down");
     $("linkText").textContent = "Mission Control server not reachable";
+    recordSample(null, state.controller);
     return;
   }
   ls.classList.remove("down");
@@ -324,7 +406,7 @@ function render(state) {
   reservable = state.reservable || reservable;
   if (!modulesBuilt) { buildModules(); buildScale(); }
 
-  // The pipe: booked lanes, then free bookable room, then the part always kept free.
+  // The pipe: booked lanes, then free bookable room, then the part never offered for booking.
   const pipe = $("pipe");
   pipe.innerHTML = "";
   const onLink = state.bookings.filter(b => b.dst === "h4" || b.src === "h4");
@@ -342,14 +424,14 @@ function render(state) {
   const reserve = document.createElement("div");
   reserve.className = "reserve";
   reserve.style.width = ((capacity - reservable) / capacity * 100) + "%";
-  reserve.textContent = "Kept free";
-  reserve.title = "Never bookable: always free for commands and booking messages";
+  reserve.textContent = "Not bookable";
+  reserve.title = "Never offered for booking. It is not set aside for any traffic: unbooked traffic shares whatever the bookings do not use";
   pipe.appendChild(reserve);
   pipe.setAttribute("aria-label", state.reserved + " of " + reservable + " bookable Mbps promised");
 
   let summary = "<strong>" + fmtMbps(state.reserved) + "</strong> of " + fmtMbps(reservable) +
     " bookable Mbps promised. <strong>" + fmtMbps(state.free) + "</strong> free. " +
-    '<span class="measured">The hatched part is never booked, so commands always get through.</span>';
+    '<span class="measured">The hatched 2 Mbps is never offered for booking; it is headroom, not a lane anyone is guaranteed.</span>';
   if (state.used !== null && state.used !== undefined) {
     summary += ' <span class="measured">Measured traffic now: ' + fmtMbps(state.used) + " Mbps.</span>";
   }
@@ -374,6 +456,185 @@ function render(state) {
     list.appendChild(li);
   });
   $("empty").hidden = state.bookings.length > 0;
+  renderRequests(state.requests);
+  recordSample(state, state.controller);
+}
+
+/* ---------------- D2: live chart ---------------- */
+const WINDOW_S = 120;
+const samples = [];                     // {t, used, booked, limited}
+
+function recordSample(state, ctrl) {
+  const link = ctrl && ctrl.ok ? ctrl.link : null;
+  const policy = ctrl && ctrl.ok ? ctrl.policy : null;
+  samples.push({
+    t: Date.now() / 1000,
+    used: link && link.used_moon_to_earth != null ? link.used_moon_to_earth : null,
+    booked: state ? state.reserved : null,
+    limited: !!(policy && policy.active)
+  });
+  const cutoff = Date.now() / 1000 - WINDOW_S - 2;
+  while (samples.length && samples[0].t < cutoff) samples.shift();
+  drawChart();
+}
+
+function drawChart() {
+  const svg = $("chart");
+  const W = 1000, H = 270, L = 46, R = 14, T = 26, B = 30;
+  const pw = W - L - R, ph = H - T - B;
+  const now = Date.now() / 1000;
+  const x = (t) => L + (1 - (now - t) / WINDOW_S) * pw;
+  const y = (v) => T + (1 - Math.min(v, capacity) / capacity) * ph;
+  let out = "";
+
+  // Congestion-limit bands first, so the lines sit on top.
+  let start = null;
+  samples.forEach((s, i) => {
+    if (s.limited && start === null) start = s.t;
+    const last = i === samples.length - 1;
+    if (start !== null && (!s.limited || last)) {
+      const end = s.limited ? s.t : s.t;
+      const x0 = Math.max(L, x(start)), x1 = Math.min(L + pw, x(end));
+      if (x1 > x0) out += '<rect x="' + x0 + '" y="' + T + '" width="' + (x1 - x0) + '" height="' + ph +
+        '" fill="rgba(155,140,255,.18)" stroke="rgba(155,140,255,.45)"/>';
+      start = null;
+    }
+  });
+
+  // Grid and the y scale (0 to capacity, every 2 Mbps).
+  for (let m = 0; m <= capacity; m += 2) {
+    out += '<line x1="' + L + '" x2="' + (L + pw) + '" y1="' + y(m) + '" y2="' + y(m) +
+      '" stroke="rgba(160,180,220,' + (m === 0 ? '.35' : '.12') + ')"/>';
+    out += '<text x="' + (L - 8) + '" y="' + (y(m) + 4) + '" text-anchor="end">' + m + '</text>';
+  }
+  out += '<text x="' + (L - 8) + '" y="12" text-anchor="end">Mbps</text>';
+  // Bookable limit (8 Mbps) as a quiet dashed reference.
+  out += '<line x1="' + L + '" x2="' + (L + pw) + '" y1="' + y(reservable) + '" y2="' + y(reservable) +
+    '" stroke="rgba(242,140,40,.45)" stroke-dasharray="4 5"/>';
+  out += '<text x="' + (L + 8) + '" y="' + (y(reservable) - 7) + '">bookable limit ' + fmtMbps(reservable) + ' Mbps</text>';
+  // Time axis: every 30 s.
+  for (let a = 0; a <= WINDOW_S; a += 30) {
+    const xx = L + (1 - a / WINDOW_S) * pw;
+    out += '<text x="' + xx + '" y="' + (H - 8) + '" text-anchor="middle">' + (a === 0 ? "now" : "-" + a + " s") + '</text>';
+  }
+
+  // A line per series, broken where readings are missing.
+  const line = (key, color, width, dash) => {
+    let d = "", pen = false, lastPt = null;
+    samples.forEach(s => {
+      const v = s[key];
+      if (v == null || x(s.t) < L) { pen = false; return; }
+      if (key === "booked" && lastPt && pen) d += "H" + x(s.t).toFixed(1) + "V" + y(v).toFixed(1);   // step line
+      else d += (pen ? "L" : "M") + x(s.t).toFixed(1) + " " + y(v).toFixed(1);
+      pen = true; lastPt = s;
+    });
+    return d ? '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="' + width +
+      '" stroke-linejoin="round"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/>' : "";
+  };
+  out += line("booked", "var(--eva)", 2.5, "");
+  out += line("used", "var(--lab)", 2.5, "");
+
+  // Emphasise the latest measured point.
+  const lastUsed = [...samples].reverse().find(s => s.used != null);
+  if (lastUsed && x(lastUsed.t) >= L) {
+    out += '<circle cx="' + x(lastUsed.t) + '" cy="' + y(lastUsed.used) + '" r="4.5" fill="var(--lab)"/>';
+  }
+  svg.innerHTML = out;
+
+  const latest = samples[samples.length - 1];
+  const note = $("chartNote");
+  if (!latest) return;
+  if (latest.used == null) {
+    note.textContent = "No measured traffic yet: the controller has no fresh reading (it needs both switches connected).";
+  } else {
+    note.textContent = "Now: " + fmtMbps(latest.used) + " Mbps measured Moon to Earth" +
+      (latest.booked != null ? ", " + fmtMbps(latest.booked) + " Mbps booked." : ".") +
+      (latest.limited ? " The congestion limit is on." : "");
+  }
+}
+
+/* ---------------- D2: network control panel ---------------- */
+function renderController(ctrl) {
+  const line = $("ctrlState");
+  line.classList.remove("ok", "warn", "down");
+  const policyBox = $("policy");
+  policyBox.classList.remove("on");
+  $("ingress").innerHTML = "";
+  if (!ctrl || !ctrl.ok) {
+    line.classList.add("down");
+    $("ctrlText").textContent = "Controller not reachable: new bookings will be refused";
+    $("policyTitle").textContent = "Congestion policy";
+    $("policyText").textContent = "Unknown while the controller is unreachable.";
+    $("policyNote").textContent = "";
+    return;
+  }
+  if (!ctrl.link) {
+    line.classList.add("warn");
+    $("ctrlText").textContent = "Controller up, waiting for link measurements";
+  } else {
+    line.classList.add("ok");
+    $("ctrlText").textContent = "Controller up, measuring the Moon link";
+  }
+  const p = ctrl.policy;
+  if (!p) {
+    $("policyTitle").textContent = "Congestion policy";
+    $("policyText").textContent = "This controller does not report a congestion policy (for example the fake test controller).";
+    $("policyNote").textContent = "";
+    return;
+  }
+  const name = (h) => (labels[h] || h) + " (" + h + ")";
+  if (p.active) {
+    policyBox.classList.add("on");
+    $("policyTitle").textContent = "Limit active";
+    $("policyText").textContent = name(p.limited_host) + " is flooding the link without a booking. Its UDP traffic to Mission Control is limited to " +
+      p.udp_cap_mbps + " Mbps (queue " + p.queue + ") until the flood stops.";
+  } else if (p.congested && p.candidate_host) {
+    $("policyTitle").textContent = "Congestion detected";
+    $("policyText").textContent = "Watching " + name(p.candidate_host) + ": " + p.trigger_samples +
+      " reading(s) over the threshold so far. The limit starts after several in a row.";
+  } else {
+    $("policyTitle").textContent = "Normal";
+    $("policyText").textContent = "No traffic is being limited.";
+  }
+  const ingress = p.ingress_mbps || {};
+  ["h1", "h2", "h3"].forEach(h => {
+    if (ingress[h] == null) return;
+    const li = document.createElement("li");
+    const pct = Math.min(100, ingress[h] / capacity * 100);
+    li.innerHTML = '<span>' + (labels[h] || h) + '</span><span class="bar"><span style="width:' + pct +
+      '%;background:' + (COLORS[h] || "var(--text)") + '"></span></span><em>' + fmtMbps(ingress[h]) + ' Mbps</em>';
+    $("ingress").appendChild(li);
+  });
+  $("policyNote").textContent = (Object.keys(ingress).length ? "Bars: traffic each module is sending into the base switch. " : "") +
+    (p.last_action ? "Last change: limit " + p.last_action + (p.last_reason ? " (" + p.last_reason + ")" : "") + "." : "");
+}
+
+/* ---------------- D2: request counts ---------------- */
+const REASON_NAMES = {
+  insufficient_capacity: "Not enough room on the link",
+  max_reservations: "All 8 lanes in use",
+  controller_error: "Network control did not confirm"
+};
+function renderRequests(r) {
+  const list = $("reasons");
+  list.innerHTML = "";
+  if (!r) {
+    ["cAcc", "cRej", "cInv"].forEach(id => $(id).textContent = "–");
+    $("reqNote").textContent = "Counts appear once the server supports the STATS command.";
+    return;
+  }
+  $("cAcc").textContent = r.accepted != null ? r.accepted : "–";
+  $("cRej").textContent = r.rejected != null ? r.rejected : "–";
+  $("cInv").textContent = r.invalid != null ? r.invalid : "–";
+  Object.keys(REASON_NAMES).forEach(k => {
+    if (r[k] == null) return;
+    const li = document.createElement("li");
+    li.innerHTML = "<span>" + REASON_NAMES[k] + "</span><span>" + r[k] + "</span>";
+    list.appendChild(li);
+  });
+  $("reqNote").textContent = r.reserve_requests != null
+    ? r.reserve_requests + " booking requests since the server started. Invalid = badly formed or out-of-range requests."
+    : "Since the server started.";
 }
 
 async function refresh() {

@@ -82,14 +82,16 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description="Fake SDN controller for testing")
+    parser.add_argument("--host", default="127.0.0.1",
+                        help="address to listen on (in the VM: 192.168.100.1, the management link)")
     parser.add_argument("--port", type=int, default=8080)
     parser.add_argument("--fail", action="store_true", help="refuse every POST")
     parser.add_argument("--slow", type=float, default=0.0, help="seconds to wait before answering a POST")
     args = parser.parse_args()
     settings["fail"], settings["slow"] = args.fail, args.slow
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print("[fake controller] listening on 127.0.0.1:{}  fail={} slow={}s".format(
-        args.port, args.fail, args.slow), flush=True)
+    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    print("[fake controller] listening on {}:{}  fail={} slow={}s".format(
+        args.host, args.port, args.fail, args.slow), flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
