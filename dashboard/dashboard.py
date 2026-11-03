@@ -4,20 +4,26 @@ The browser talks to this small web backend; this backend talks to the
 reservation server with the SAME TCP commands as client/client.py
 (RESERVE, RELEASE, STATUS, LIST). Nothing in the server changes.
 
-On the Mac (server and fake controller running locally):
-    python3.9 dashboard/dashboard.py --controller http://127.0.0.1:8080
+On the Mac (server running locally):
+    python3.9 dashboard/dashboard.py
     then open http://127.0.0.1:8000
 
-In the VM (server running on h4 inside Mininet, reached over the
-management link; the controller runs on the VM itself):
+In the VM (server running on h4 inside Mininet), reached over the
+management link:
     python3 dashboard/dashboard.py --server 192.168.100.4
     then open http://127.0.0.1:8000 in the VM's browser
+    (the controller is read from http://127.0.0.1:8080; override with --controller)
 
-D2 additions (read-only, nothing is changed on the server or controller):
-  * link usage, reserved total and the congestion policy status come from the
-    controller's GET /stats/links (the "d2_congestion" block, if present);
-  * request counts come from the server's STATS command, once the server has it.
-    Until then the page says the counts are not available.
+Deliverable 2 additions (all read-only; booking/cancel behaviour is unchanged):
+  * a background poller reads the controller (default http://127.0.0.1:8080,
+    change with --controller) every 2 s and keeps the last 120 s of MEASURED
+    traffic (s1->s2 counters) next to RESERVED Mbps, for the live chart;
+  * controller congestion-policy status (the "d2_congestion" block of
+    GET /stats/links) is passed through for the limiter panel;
+  * request outcome counts come from the server's STATS command if the
+    server has one; otherwise the panel says so (nothing is invented);
+  * health is reported per component, because controller /health = 200 alone
+    does not prove that the switches and queues are ready.
 
 Standard library only.
 """
@@ -27,8 +33,11 @@ import json
 import os
 import socket
 import sys
+import threading
+import time
 import urllib.error
 import urllib.request
+from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -36,10 +45,23 @@ sys.path.insert(0, os.path.join(HERE, ".."))
 from common import config  # noqa: E402
 
 SERVER = {"host": "127.0.0.1", "port": config.SERVER_PORT}
-CONTROLLER = {"url": config.CONTROLLER_URL.rstrip("/")}
+CONTROLLER = {"url": "http://127.0.0.1:8080"}   # dashboard runs on the VM host, next to Ryu
 
-# Ignore any proxy settings: the controller is always reached directly.
-_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+HISTORY_S = 120            # seconds of measured traffic kept for the chart
+POLL_S = 2                 # same rhythm as the controller's own statistics loop
+STALE_S = 3 * config.STATS_INTERVAL_S   # the controller itself calls a reading stale after this
+REQUEST_POLL_S = 10        # how often the server's STATS command is tried
+
+# Fields of the controller's "d2_congestion" block that are passed to the page.
+POLICY_FIELDS = ("enabled", "active", "limited_host", "limited_pair", "queue", "priority",
+                 "udp_cap_mbps", "congested", "candidate_host", "trigger_samples",
+                 "last_action", "last_reason", "ingress_mbps")
+
+_direct = urllib.request.build_opener(urllib.request.ProxyHandler({}))   # never use a proxy
+LOCK = threading.Lock()
+HISTORY = deque()          # one sample per poll: see poll_controller()
+MONITOR = {"controller": {"state": "unknown"}, "policy": None, "requests": {"state": "unknown"},
+           "checked_at": None, "requests_checked_at": 0.0}
 
 FRIENDLY = {
     "insufficient_capacity": "Not enough room on the Moon link for that booking.",
@@ -92,56 +114,6 @@ def parse_list(reply):
     return bookings
 
 
-def parse_stats(reply):
-    """Request counts from the server's STATS reply, or None if unavailable.
-
-    Expected shape (agreed with Member A):
-    OK STATS reserve_requests=12 accepted=7 rejected=3 invalid=2 insufficient_capacity=2 ...
-    Every key=value pair is passed through, so new counters need no change here.
-    """
-    if not reply or not reply.startswith("OK STATS"):
-        return None
-    counts = {}
-    for part in reply.split()[2:]:
-        if "=" in part:
-            key, value = part.split("=", 1)
-            try:
-                counts[key] = int(value)
-            except ValueError:
-                counts[key] = value
-    return counts
-
-
-def ask_controller():
-    """Link figures and congestion-policy status from the controller (read-only).
-
-    Returns {"ok": False} if the controller cannot be reached, and
-    {"ok": True, "link": None} if it answers but has no fresh measurement yet.
-    """
-    try:
-        with _opener.open(CONTROLLER["url"] + "/stats/links", timeout=1.5) as resp:
-            data = json.loads(resp.read() or b"{}")
-    except urllib.error.HTTPError as e:
-        # 503 = controller up, but no fresh measurement yet (switches not ready).
-        return {"ok": True, "link": None, "note": "no fresh measurement yet (HTTP %d)" % e.code}
-    except (urllib.error.URLError, OSError, ValueError):
-        return {"ok": False}
-    link = next((item for item in data.get("links", []) if item.get("link") == "s1-s2"), None)
-    if link is None:
-        return {"ok": True, "link": None, "note": "no s1-s2 figures in the reply"}
-    used_forward = link.get("used_mbps_s1_to_s2")
-    return {
-        "ok": True,
-        "link": {
-            "used_mbps": link.get("used_mbps"),
-            # Moon -> Earth direction, the one the bookings and the flood use.
-            "used_moon_to_earth": used_forward if used_forward is not None else link.get("used_mbps"),
-            "reserved_mbps": link.get("reserved_mbps"),
-        },
-        "policy": link.get("d2_congestion"),   # None for controllers without D2
-    }
-
-
 def explain(reply):
     """Turn a server reply into (ok, sentence for the page)."""
     if reply is None:
@@ -155,6 +127,147 @@ def explain(reply):
     if parts[1] == "NOT_FOUND":
         return False, "That booking has already ended."
     return False, FRIENDLY.get(reason, reply)
+
+
+def controller_get(path):
+    """GET one controller path. Returns (status, json). status is None if unreachable."""
+    try:
+        with _direct.open(urllib.request.Request(CONTROLLER["url"] + path), timeout=2) as resp:
+            return resp.status, json.loads(resp.read() or b"{}")
+    except urllib.error.HTTPError as error:
+        try:
+            return error.code, json.loads(error.read() or b"{}")
+        except ValueError:
+            return error.code, {}
+    except (urllib.error.URLError, OSError, ValueError):
+        return None, {}
+
+
+def number_or_none(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value)
+
+
+def poll_controller(now):
+    """Read /health and /stats/links once and store one history sample.
+
+    Missing readings are stored as None (shown as "unknown"), never as 0."""
+    health_code, _ = controller_get("/health")
+    sample = {"t": now, "measured": None, "basis": None, "reserved": None, "limiter": None}
+    policy = None
+    if health_code is None:
+        controller = {"state": "unreachable", "measurements": "unknown",
+                      "detail": "No answer from {}".format(CONTROLLER["url"])}
+    elif health_code != 200:
+        controller = {"state": "error", "measurements": "unknown",
+                      "detail": "/health returned HTTP {}".format(health_code)}
+    else:
+        stats_code, body = controller_get("/stats/links")
+        link = None
+        if stats_code == 200:
+            for item in body.get("links", []):
+                if item.get("link") == "s1-s2":
+                    link = item
+        if link is not None:
+            one_way = number_or_none(link.get("used_mbps_s1_to_s2"))
+            if one_way is not None:
+                sample["measured"], sample["basis"] = one_way, "s1_to_s2"
+            else:    # older controller: only the two-way total exists
+                sample["measured"] = number_or_none(link.get("used_mbps"))
+                sample["basis"] = "total" if sample["measured"] is not None else None
+            sample["reserved"] = number_or_none(link.get("reserved_mbps"))
+            block = link.get("d2_congestion")
+            if isinstance(block, dict):
+                policy = dict((key, block.get(key)) for key in POLICY_FIELDS)
+                if isinstance(block.get("active"), bool):
+                    sample["limiter"] = block["active"]
+            controller = {"state": "up", "measurements": "fresh",
+                          "detail": "Link counters are fresh."}
+        elif stats_code == 503:
+            controller = {"state": "up", "measurements": "unavailable",
+                          "detail": body.get("reason", "no fresh measurement yet")}
+        else:
+            controller = {"state": "up", "measurements": "unavailable",
+                          "detail": "/stats/links gave {}".format(
+                              "no answer" if stats_code is None else "HTTP {}".format(stats_code))}
+    with LOCK:
+        HISTORY.append(sample)
+        while HISTORY and HISTORY[0]["t"] < now - HISTORY_S - POLL_S:
+            HISTORY.popleft()
+        MONITOR["controller"], MONITOR["policy"], MONITOR["checked_at"] = controller, policy, now
+
+
+def parse_request_stats(reply):
+    """Read the server's STATS reply. The format is Anwesha's to define, so this accepts
+    either  OK STATS accepted=3 rejected=1 invalid=2 [reason_x=1 ...]  or  OK STATS {json}.
+    Anything else is reported as such; no value is ever made up."""
+    if reply is None:
+        return {"state": "unreachable"}
+    if not reply.startswith("OK STATS"):
+        return {"state": "unsupported", "detail": reply[:120]}
+    rest = reply[len("OK STATS"):].strip()
+    try:
+        data = json.loads(rest)
+        if not isinstance(data, dict):
+            raise ValueError
+    except ValueError:
+        data = {}
+        for part in rest.split():
+            if "=" in part:
+                key, value = part.split("=", 1)
+                data[key] = value
+    counts, reasons = {}, {}
+    for key, value in data.items():
+        if key == "reasons" and isinstance(value, dict):
+            for name, number in value.items():
+                if isinstance(number, int):
+                    reasons[str(name)] = number
+            continue
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            continue
+        if key in ("accepted", "rejected", "invalid"):
+            counts[key] = number
+        else:
+            reasons[key[7:] if key.startswith("reason_") else key] = number
+    if not counts:
+        return {"state": "unrecognised", "detail": reply[:120]}
+    counts.update({"state": "ok", "reasons": reasons})
+    return counts
+
+
+def monitor_loop():
+    """Runs forever in its own thread: keeps the traffic history and request counts fresh."""
+    while True:
+        started = time.time()
+        try:
+            poll_controller(started)
+            if started - MONITOR["requests_checked_at"] >= REQUEST_POLL_S:
+                requests_view = parse_request_stats(ask_server("STATS"))
+                with LOCK:
+                    MONITOR["requests"] = requests_view
+                    MONITOR["requests_checked_at"] = started
+        except Exception as error:      # the poller must never die
+            print("monitor error: {}".format(error), flush=True)
+        time.sleep(max(0.2, POLL_S - (time.time() - started)))
+
+
+def health_view(server_ok, now):
+    """One status per component. 'ok' is only claimed for what was actually observed."""
+    with LOCK:
+        controller = dict(MONITOR["controller"])
+        checked_at = MONITOR["checked_at"]
+    if checked_at is None:
+        controller = {"state": "unknown", "measurements": "unknown", "detail": "Not checked yet."}
+    elif now - checked_at > STALE_S:
+        controller = {"state": controller.get("state", "unknown"), "measurements": "stale",
+                      "detail": "Last controller check was {:.0f} s ago.".format(now - checked_at)}
+    return {"server": "ok" if server_ok else "unreachable", "controller": controller,
+            "note": "Controller /health only shows the web interface is running. Fresh link "
+                    "counters show both switches are reporting, but queue setup is not "
+                    "reported, so a booking can still be refused."}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -182,20 +295,26 @@ class Handler(BaseHTTPRequestHandler):
             with open(os.path.join(HERE, "index.html"), "rb") as f:
                 return self._send(200, f.read(), "text/html; charset=utf-8")
         if self.path == "/api/state":
+            now = time.time()
             status_reply = ask_server("STATUS")
             list_reply = ask_server("LIST")
-            controller = ask_controller()
-            if not (status_reply and status_reply.startswith("OK STATUS")
-                    and list_reply and list_reply.startswith("OK LIST")):
-                return self._send(200, {"server_ok": False, "controller": controller})
+            server_ok = bool(status_reply and status_reply.startswith("OK STATUS")
+                             and list_reply and list_reply.startswith("OK LIST"))
+            with LOCK:
+                extra = {"history": list(HISTORY), "policy": MONITOR["policy"],
+                         "requests": dict(MONITOR["requests"])}
+            extra.update({"now": now, "health": health_view(server_ok, now),
+                          "history_s": HISTORY_S, "poll_s": POLL_S})
+            if not server_ok:
+                extra["server_ok"] = False
+                return self._send(200, extra)
             state = parse_status(status_reply)
+            state.update(extra)
             state.update({
                 "server_ok": True,
                 "reservable": config.LINKS["s1-s2"] * config.RESERVABLE_SHARE,
                 "max_active": config.MAX_ACTIVE,
                 "bookings": parse_list(list_reply),
-                "controller": controller,
-                "requests": parse_stats(ask_server("STATS")),
                 "labels": config.HOST_LABELS,
                 "limits": {"min_mbps": config.MIN_MBPS, "max_mbps": config.MAX_MBPS,
                            "min_s": config.MIN_SECONDS, "max_s": config.MAX_SECONDS},
@@ -222,12 +341,13 @@ def main():
     parser.add_argument("--server", default="127.0.0.1",
                         help="reservation server address (192.168.100.4 from the VM)")
     parser.add_argument("--port", type=int, default=8000, help="web page port")
-    parser.add_argument("--controller", default=config.CONTROLLER_URL,
-                        help="controller web interface for link and policy status "
-                             "(on the Mac with the fake controller: http://127.0.0.1:8080)")
+    parser.add_argument("--controller", default=CONTROLLER["url"],
+                        help="Ryu REST address for measured traffic and policy status "
+                             "(default %(default)s; Ryu runs on the VM host)")
     args = parser.parse_args()
     SERVER["host"] = args.server
     CONTROLLER["url"] = args.controller.rstrip("/")
+    threading.Thread(target=monitor_loop, name="Monitor", daemon=True).start()
     web = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
     print("Dashboard on http://127.0.0.1:{}  (reservation server {}:{}, controller {})".format(
         args.port, SERVER["host"], SERVER["port"], CONTROLLER["url"]), flush=True)
