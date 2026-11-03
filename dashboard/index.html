@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoonLink Mission Control</title>
+<style>
+  :root {
+    --bg: #070b14; --panel: #0f1626; --panel-2: #141d31; --line: #24304a;
+    --text: #e6ebf5; --muted: #8b97b1; --accent: #5ec8e5; --reserved: #f2b84b;
+    --good: #5fd39a; --warn: #f2b84b; --bad: #ef6b6b; --limiter: #ff8a4c;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1200px 600px at 80% -10%, #14213d 0%, var(--bg) 60%) fixed, var(--bg); min-height: 100vh;
+         color: var(--text); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
+           padding: 16px 24px; border-bottom: 1px solid var(--line); background: rgba(7,11,20,.7); }
+  h1 { margin: 0; font-size: 18px; letter-spacing: .14em; text-transform: uppercase; }
+  h1 span { color: var(--accent); }
+  h2 { margin: 0 0 10px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  main { display: grid; grid-template-columns: minmax(300px, 400px) 1fr; gap: 16px; padding: 16px 24px 32px; max-width: 1280px; margin: 0 auto; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; padding: 16px; } header { padding: 14px 16px; } }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+  .muted { color: var(--muted); } .small { font-size: 12.5px; } .mono { font-family: var(--mono); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px; border: 1px solid var(--line);
+          border-radius: 999px; background: var(--panel-2); font-size: 12.5px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .ok .dot { background: var(--good); } .warn .dot { background: var(--warn); } .bad .dot { background: var(--bad); }
+
+  .bar { position: relative; height: 26px; border-radius: 6px; overflow: hidden; background: var(--panel-2); border: 1px solid var(--line); display: flex; }
+  .bar .res { background: var(--reserved); transition: width .4s; }
+  .bar .free { background: rgba(94,200,229,.18); transition: width .4s; }
+  .bar .head { background: repeating-linear-gradient(45deg, #2a3452 0 6px, #1b2339 6px 12px); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .big { font-size: 26px; font-weight: 650; font-family: var(--mono); }
+
+  form { display: grid; gap: 10px; }
+  label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+  select, input, button { font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: #04202b; font-weight: 650; border-color: transparent; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.danger { padding: 4px 10px; color: var(--bad); border-color: #5a2a33; }
+  #formMsg { min-height: 20px; font-size: 13px; }
+
+  .booking { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .booking:first-child { border-top: 0; }
+  .empty { padding: 6px 0; color: var(--muted); }
+
+  .chartwrap { position: relative; }
+  svg.chart { width: 100%; height: auto; display: block; }
+  .chart text { fill: var(--muted); font-size: 11px; font-family: var(--mono); }
+  .readout { min-height: 20px; margin-top: 6px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13.5px; margin: 10px 0 0; }
+  .kv dt { color: var(--muted); } .kv dd { margin: 0; font-family: var(--mono); overflow-wrap: anywhere; }
+  .state { font-weight: 650; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } }
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+  .count { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .count b { display: block; font-family: var(--mono); font-size: 22px; }
+  #activity { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; font-size: 13px; }
+  #activity li { padding: 5px 0; border-top: 1px solid var(--line); display: flex; gap: 10px; }
+  #activity li:first-child { border-top: 0; }
+  #activity time { color: var(--muted); font-family: var(--mono); flex: none; }
+  footer { max-width: 1280px; margin: 0 auto; padding: 0 24px 28px; color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MoonLink <span>Mission Control</span></h1>
+  <div class="chips" id="health" aria-live="polite"></div>
+</header>
+
+<main>
+  <div class="col">
+    <section class="panel" aria-labelledby="capTitle">
+      <h2 id="capTitle">Moon-to-Earth link bookings</h2>
+      <div class="big"><span id="resNum">–</span> <span class="muted small">of <span id="maxNum">8</span> Mbps booked</span></div>
+      <div class="bar" id="capBar" role="img" aria-label="Link booking bar">
+        <div class="res" id="barRes"></div><div class="free" id="barFree"></div><div class="head" id="barHead"></div>
+      </div>
+      <div class="legend small">
+        <span><i style="background:var(--reserved)"></i>Booked</span>
+        <span><i style="background:rgba(94,200,229,.4)"></i>Still bookable</span>
+        <span><i style="background:#2a3452"></i>2 Mbps not bookable (reserved admission headroom)</span>
+      </div>
+      <p class="muted small" style="margin:10px 0 0">
+        The link carries 10 Mbps. At most <b>8 Mbps</b> of reservations are admitted; the other 2 Mbps is
+        kept out of the booking pool as admission headroom. It is not a guaranteed allocation for
+        any queue. Each booking gets its own queue with a configured minimum rate.
+      </p>
+    </section>
+
+    <section class="panel" aria-labelledby="bookTitle">
+      <h2 id="bookTitle">Book a lane</h2>
+      <form id="bookForm">
+        <label>Station
+          <select id="src" required></select>
+        </label>
+        <div class="row2">
+          <label>Speed (Mbps)<input id="mbps" type="number" inputmode="numeric" value="2" required></label>
+          <label>Duration (seconds)<input id="seconds" type="number" inputmode="numeric" value="60" required></label>
+        </div>
+        <button class="primary" id="bookBtn" type="submit">Reserve lane to Mission Control</button>
+        <div id="formMsg" role="status"></div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="actTitle">
+      <h2 id="actTitle">Active bookings</h2>
+      <div id="bookings"><div class="empty">Waiting for the server…</div></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="panel" aria-labelledby="chartTitle">
+      <h2 id="chartTitle">Link traffic: measured vs. booked</h2>
+      <div class="chips" style="margin-bottom:8px">
+        <span class="chip"><span class="dot" style="background:var(--accent)"></span><span id="legMeasured">Traffic measured (s1→s2)</span></span>
+        <span class="chip"><span class="dot" style="background:var(--reserved)"></span>Capacity promised (booked Mbps)</span>
+        <span class="chip"><span class="dot" style="background:var(--limiter)"></span>Limiter active</span>
+      </div>
+      <div class="chartwrap">
+        <svg class="chart" id="chart" viewBox="0 0 720 260" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="Rolling chart of measured traffic and booked bandwidth"></svg>
+      </div>
+      <div class="readout" id="readout">Hover the chart for exact values.</div>
+      <p class="muted small" style="margin:6px 0 0">
+        Measured = controller counters on the s1→s2 port, averaged over each 2 s interval. Booked = sum of active
+        reservations on the link. Hatched columns are intervals with no reading (unknown, not zero).
+      </p>
+    </section>
+
+    <div class="grid2">
+      <section class="panel" aria-labelledby="limTitle">
+        <h2 id="limTitle">Congestion limiter</h2>
+        <div id="limiter"></div>
+      </section>
+      <section class="panel" aria-labelledby="reqTitle">
+        <h2 id="reqTitle">Booking request outcomes</h2>
+        <div id="requests"></div>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="logTitle">
+      <h2 id="logTitle">Recent activity</h2>
+      <ul id="activity"><li class="muted">Nothing yet.</li></ul>
+    </section>
+  </div>
+</main>
+<footer id="healthNote"></footer>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const state = { data: null, sourceFilled: false, lastIds: null, lastLimiter: null, lastHealth: "", mine: new Set(), feed: [] };
+
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+function fmt(v, digits) {
+  if (v === null || v === undefined || Number.isNaN(v)) return "unknown";
+  const s = Number(v).toFixed(digits === undefined ? 2 : digits);
+  return s.indexOf(".") >= 0 ? s.replace(/\.?0+$/, "") : s;
+}
+function clock(t) { return new Date(t * 1000).toTimeString().slice(0, 8); }
+function say(text, kind) {
+  state.feed.unshift({ t: Date.now() / 1000, text, kind });
+  state.feed.length = Math.min(state.feed.length, 30);
+  const list = $("activity"); list.textContent = "";
+  for (const item of state.feed) {
+    const li = el("li"); li.append(el("time", "", clock(item.t)), el("span", item.kind === "bad" ? "" : "", item.text));
+    if (item.kind === "bad") li.lastChild.style.color = "var(--bad)";
+    list.append(li);
+  }
+}
+
+/* ---------- health ---------- */
+function chip(label, level, detail) {
+  const c = el("span", "chip " + level); c.title = detail || "";
+  c.append(el("span", "dot"), el("span", "", label));
+  return c;
+}
+function renderHealth(h) {
+  const box = $("health"); box.textContent = "";
+  box.append(chip(h.server === "ok" ? "Reservation server: reachable" : "Reservation server: unreachable",
+                  h.server === "ok" ? "ok" : "bad"));
+  const c = h.controller;
+  const ctl = { up: ["SDN controller: web interface up", "ok"], unreachable: ["SDN controller: unreachable", "bad"],
+                error: ["SDN controller: error", "bad"], unknown: ["SDN controller: not checked yet", "warn"] }[c.state] || ["SDN controller: unknown", "warn"];
+  box.append(chip(ctl[0], ctl[1], c.detail));
+  const m = { fresh: ["Link counters: fresh", "ok"], unavailable: ["Link counters: unavailable", "warn"],
+              stale: ["Link counters: stale", "warn"], unknown: ["Link counters: unknown", c.state === "unreachable" ? "bad" : "warn"] }[c.measurements] || ["Link counters: unknown", "warn"];
+  box.append(chip(m[0], m[1], c.detail));
+  $("healthNote").textContent = (c.measurements !== "fresh" && c.detail ? c.detail + " " : "") + h.note;
+  const key = [h.server, c.state, c.measurements].join("|");
+  if (state.lastHealth && state.lastHealth !== key) say("Health: " + ctl[0] + "; " + m[0], (ctl[1] === "bad" || h.server !== "ok") ? "bad" : "");
+  state.lastHealth = key;
+}
+
+/* ---------- capacity bar + bookings ---------- */
+function renderCapacity(d) {
+  const cap = d.capacity || 10, bookable = d.reservable || 8;
+  $("maxNum").textContent = fmt(bookable, 0);
+  $("resNum").textContent = fmt(d.reserved, 0);
+  $("barRes").style.width = (100 * d.reserved / cap) + "%";
+  $("barFree").style.width = (100 * Math.max(0, bookable - d.reserved) / cap) + "%";
+  $("barHead").style.width = (100 * Math.max(0, cap - bookable) / cap) + "%";
+  $("capBar").setAttribute("aria-label", d.reserved + " of " + bookable + " Mbps booked; " + (cap - bookable) + " Mbps not bookable");
+}
+function renderBookings(d) {
+  const box = $("bookings"); box.textContent = "";
+  if (!d.bookings.length) { box.append(el("div", "empty", "No active bookings.")); return; }
+  for (const b of d.bookings) {
+    const row = el("div", "booking");
+    const info = el("div");
+    info.append(el("div", "", (d.labels[b.src] || b.src) + " → " + (d.labels[b.dst] || b.dst)),
+                el("div", "muted small mono", "#" + b.id + " · " + b.mbps + " Mbps · " + b.left + " s left"));
+    const btn = el("button", "danger", "Cancel"); btn.type = "button";
+    btn.addEventListener("click", () => cancelBooking(b.id, btn));
+    row.append(info, btn); box.append(row);
+  }
+}
+function fillForm(d) {
+  if (state.sourceFilled) return;
+  const sel = $("src");
+  for (const h of Object.keys(d.labels).filter((h) => h !== "h4")) {
+    const o = el("option", "", d.labels[h] + " (" + h + ")"); o.value = h; sel.append(o);
+  }
+  $("mbps").min = d.limits.min_mbps; $("mbps").max = d.limits.max_mbps;
+  $("seconds").min = d.limits.min_s; $("seconds").max = d.limits.max_s;
+  state.sourceFilled = true;
+}
+function trackBookings(d) {
+  const ids = new Set(d.bookings.map((b) => b.id));
+  if (state.lastIds) {
+    for (const b of d.bookings) if (!state.lastIds.has(b.id) && !state.mine.has(b.id))
+      say("Booking #" + b.id + " is now active (" + b.src + " → " + b.dst + ", " + b.mbps + " Mbps).");
+    for (const id of state.lastIds) if (!ids.has(id)) {
+      if (state.mine.has(id)) state.mine.delete(id); else say("Booking #" + id + " ended.");
+    }
+  }
+  state.lastIds = ids;
+}
+
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  return r.json();
+}
+$("bookForm").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const btn = $("bookBtn"), msg = $("formMsg"); btn.disabled = true; msg.textContent = "Sending request…"; msg.style.color = "var(--muted)";
+  try {
+    const out = await post("/api/reserve", { src: $("src").value, mbps: $("mbps").value, seconds: $("seconds").value });
+    msg.style.color = out.ok ? "var(--good)" : "var(--bad)";
+    if (out.ok) {
+      const id = Number((out.reply || "").split(" ")[2]);
+      if (id) state.mine.add(id);
+      msg.textContent = "Booked: " + out.reply;
+      say("Reserved " + $("mbps").value + " Mbps for " + $("seconds").value + " s from " + $("src").value + " (booking #" + id + ").");
+    } else { msg.textContent = out.message; say("Booking refused: " + out.message, "bad"); }
+  } catch (e) { msg.style.color = "var(--bad)"; msg.textContent = "Dashboard backend not reachable."; }
+  btn.disabled = false; refresh();
+});
+async function cancelBooking(id, btn) {
+  btn.disabled = true;
+  try {
+    const out = await post("/api/release", { id });
+    if (out.ok) { state.mine.add(id); say("Cancelled booking #" + id + "."); } else say("Cancel failed: " + out.message, "bad");
+  } catch (e) { say("Cancel failed: dashboard backend not reachable.", "bad"); }
+  refresh();
+}
+
+/* ---------- chart ---------- */
+function svg(tag, attrs, text) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text !== undefined) n.textContent = text;
+  return n;
+}
+const C = { w: 720, h: 260, l: 44, r: 12, t: 12, b: 30 };
+let chartCtx = null;
+function renderChart(d) {
+  const root = $("chart"); root.textContent = "";
+  const span = d.history_s || 120, poll = d.poll_s || 2;
+  const hist = d.history.map((s) => Object.assign({}, s, { x: s.t - d.now }));
+  const top = Math.max(10, Math.ceil(Math.max(0, ...hist.map((s) => Math.max(s.measured || 0, s.reserved || 0)))) + 1);
+  const px = (x) => C.l + (x + span) / span * (C.w - C.l - C.r);
+  const py = (v) => C.t + (1 - v / top) * (C.h - C.t - C.b);
+  chartCtx = { hist, span, px, py };
+
+  const defs = svg("defs", {});
+  const pat = svg("pattern", { id: "hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  pat.append(svg("rect", { width: 6, height: 6, fill: "#1b2339" }), svg("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: "#3a4668", "stroke-width": 2 }));
+  defs.append(pat); root.append(defs);
+
+  for (let v = 0; v <= top; v += top > 12 ? 4 : 2) {
+    root.append(svg("line", { x1: C.l, x2: C.w - C.r, y1: py(v), y2: py(v), stroke: "#1d2842", "stroke-width": 1 }));
+    root.append(svg("text", { x: C.l - 6, y: py(v) + 4, "text-anchor": "end" }, v));
+  }
+  for (let s = 0; s <= span; s += 20) {
+    root.append(svg("text", { x: px(-s), y: C.h - 10, "text-anchor": s === span ? "start" : "middle" }, s === 0 ? "now" : "-" + s + "s"));
+  }
+  root.append(svg("text", { x: 4, y: 10 }, "Mbps"));
+  root.append(svg("line", { x1: C.l, x2: C.w - C.r, y1: py(10), y2: py(10), stroke: "#4b5879", "stroke-dasharray": "2 4" }));
+  root.append(svg("text", { x: C.w - C.r - 2, y: py(10) - 4, "text-anchor": "end" }, "10 Mbps link capacity"));
+  root.append(svg("line", { x1: C.l, x2: C.w - C.r, y1: py(8), y2: py(8), stroke: "#6b5a2a", "stroke-dasharray": "6 4" }));
+  root.append(svg("text", { x: C.w - C.r - 2, y: py(8) - 4, "text-anchor": "end" }, "8 Mbps max admitted reservations"));
+
+  // unknown intervals
+  for (const s of hist) if (s.measured === null) {
+    const x0 = Math.max(C.l, px(s.x - poll));
+    root.append(svg("rect", { x: x0, y: C.t, width: Math.max(0, px(s.x) - x0), height: C.h - C.t - C.b, fill: "url(#hatch)", opacity: 0.7 }));
+  }
+  // limiter band
+  for (const s of hist) if (s.limiter) {
+    const x0 = Math.max(C.l, px(s.x - poll));
+    root.append(svg("rect", { x: x0, y: C.h - C.b - 5, width: Math.max(0, px(s.x) - x0), height: 5, fill: "var(--limiter)" }));
+  }
+  // reserved (stepped, where known)
+  let seg = [];
+  const flush = (stroke, fill) => {
+    if (seg.length > 1) {
+      const pts = seg.map((p) => p[0] + "," + p[1]).join(" L");
+      if (fill) root.append(svg("path", { d: "M" + seg[0][0] + "," + py(0) + " L" + pts + " L" + seg[seg.length - 1][0] + "," + py(0) + " Z", fill: "rgba(242,184,75,.12)" }));
+      root.append(svg("path", { d: "M" + pts, fill: "none", stroke, "stroke-width": 2, "stroke-dasharray": fill ? "6 3" : "0" }));
+    } else if (seg.length === 1) root.append(svg("circle", { cx: seg[0][0], cy: seg[0][1], r: 2.5, fill: stroke }));
+    seg = [];
+  };
+  let prev = null;
+  for (const s of hist) {
+    if (s.reserved === null) { flush("var(--reserved)", true); prev = null; continue; }
+    if (prev !== null) seg.push([px(s.x), py(prev)]);
+    seg.push([px(s.x), py(s.reserved)]); prev = s.reserved;
+  }
+  flush("var(--reserved)", true);
+  // measured
+  seg = [];
+  for (const s of hist) {
+    if (s.measured === null) { flush("var(--accent)", false); continue; }
+    seg.push([px(s.x), py(s.measured)]);
+  }
+  flush("var(--accent)", false);
+
+  const latest = hist.length ? hist[hist.length - 1] : null;
+  $("legMeasured").textContent = latest && latest.basis === "total"
+    ? "Traffic measured (both directions; s1→s2 not reported)" : "Traffic measured (s1→s2)";
+  const hover = svg("rect", { x: C.l, y: C.t, width: C.w - C.l - C.r, height: C.h - C.t - C.b, fill: "transparent" });
+  hover.addEventListener("mousemove", (ev) => chartHover(ev, root));
+  hover.addEventListener("mouseleave", () => { $("readout").textContent = "Hover the chart for exact values."; });
+  root.append(hover);
+}
+function chartHover(ev, root) {
+  if (!chartCtx || !chartCtx.hist.length) return;
+  const box = root.getBoundingClientRect();
+  const x = (ev.clientX - box.left) / box.width * C.w;
+  let best = null, dist = 1e9;
+  for (const s of chartCtx.hist) { const dd = Math.abs(chartCtx.px(s.x) - x); if (dd < dist) { dist = dd; best = s; } }
+  if (!best || dist > 30) return;
+  $("readout").textContent = Math.abs(Math.round(best.x)) + " s ago · measured " + (best.measured === null ? "unknown" : fmt(best.measured) + " Mbps")
+    + " · booked " + (best.reserved === null ? "unknown" : fmt(best.reserved) + " Mbps")
+    + (best.limiter === true ? " · limiter active" : best.limiter === false ? " · limiter inactive" : "");
+}
+
+/* ---------- limiter ---------- */
+function renderLimiter(d) {
+  const box = $("limiter"); box.textContent = "";
+  const p = d.policy;
+  if (!p) {
+    const why = d.health.controller.measurements === "fresh"
+      ? "This controller does not report congestion-policy status."
+      : "Policy status unavailable: no fresh controller reading.";
+    box.append(el("div", "state muted", "Unknown")); box.append(el("p", "muted small", why)); return;
+  }
+  const on = p.active === true, off = p.active === false;
+  const s = el("div", "state", on ? "ACTIVE" : off ? "Inactive" : "Unknown");
+  s.style.color = on ? "var(--limiter)" : off ? "var(--good)" : "var(--muted)";
+  s.style.fontSize = "22px"; box.append(s);
+  const show = (v) => (v === null || v === undefined) ? "none" : (typeof v === "object" ? JSON.stringify(v) : String(v));
+  const kv = el("dl", "kv");
+  const add = (k, v) => { kv.append(el("dt", "", k), el("dd", "", v)); };
+  add("Enabled", p.enabled === null || p.enabled === undefined ? "unknown" : String(p.enabled));
+  add("Affected traffic", on ? show(p.limited_pair !== null && p.limited_pair !== undefined ? p.limited_pair : p.limited_host) : (p.candidate_host ? "candidate: " + p.candidate_host : "none"));
+  add("Configured cap", p.udp_cap_mbps === null || p.udp_cap_mbps === undefined ? "unknown" : fmt(p.udp_cap_mbps) + " Mbps (queue " + show(p.queue) + ", priority " + show(p.priority) + ")");
+  add("Link congested", p.congested === null || p.congested === undefined ? "unknown" : (p.congested ? "yes" : "no"));
+  if (p.trigger_samples) add("Samples toward trigger", String(p.trigger_samples));
+  add("Last action", show(p.last_action) + (p.last_reason ? " — " + p.last_reason : ""));
+  if (p.ingress_mbps && typeof p.ingress_mbps === "object")
+    add("Host ingress (Mbps)", Object.keys(p.ingress_mbps).map((h) => h + " " + fmt(p.ingress_mbps[h])).join(" · "));
+  box.append(kv);
+  if (state.lastLimiter !== null && state.lastLimiter !== p.active && typeof p.active === "boolean")
+    say(p.active ? "Congestion limiter engaged" + (p.limited_pair ? " on " + show(p.limited_pair) : "") + "." : "Congestion limiter cleared (" + show(p.last_reason) + ").");
+  if (typeof p.active === "boolean") state.lastLimiter = p.active;
+}
+
+/* ---------- request outcomes ---------- */
+function renderRequests(d) {
+  const box = $("requests"); box.textContent = "";
+  const r = d.requests || { state: "unknown" };
+  if (r.state !== "ok") {
+    const text = { unreachable: "Unknown: reservation server not reachable.",
+                   unsupported: "Not available: this server version has no request-statistics command yet.",
+                   unrecognised: "Server replied, but the format is not recognised: " + (r.detail || ""),
+                   unknown: "Not checked yet." }[r.state] || "Unknown.";
+    box.append(el("div", "state muted", "Unknown"), el("p", "muted small", text)); return;
+  }
+  const counts = el("div", "counts");
+  for (const [k, label, color] of [["accepted", "Accepted", "var(--good)"], ["rejected", "Rejected", "var(--warn)"], ["invalid", "Invalid", "var(--bad)"]]) {
+    const c = el("div", "count"); const n = el("b", "", r[k] === undefined ? "–" : String(r[k])); n.style.color = color;
+    c.append(n, el("span", "muted small", label)); counts.append(c);
+  }
+  box.append(counts);
+  const names = Object.keys(r.reasons || {});
+  if (names.length) {
+    const kv = el("dl", "kv"); for (const n of names) kv.append(el("dt", "", n.replace(/_/g, " ")), el("dd", "", String(r.reasons[n])));
+    box.append(kv);
+  } else box.append(el("p", "muted small", "No reason breakdown reported."));
+}
+
+/* ---------- main loop ---------- */
+function render(d) {
+  renderHealth(d.health); renderChart(d); renderLimiter(d); renderRequests(d);
+  if (d.server_ok) {
+    fillForm(d); renderCapacity(d); renderBookings(d); trackBookings(d); $("bookBtn").disabled = false;
+  } else {
+    $("bookings").textContent = ""; $("bookings").append(el("div", "empty", "Mission Control server is not reachable, so bookings cannot be shown or changed."));
+    $("resNum").textContent = "–"; $("bookBtn").disabled = true; state.lastIds = null;
+  }
+}
+let busy = false;
+async function refresh() {
+  if (busy) return; busy = true;
+  try { const r = await fetch("/api/state", { cache: "no-store" }); state.data = await r.json(); render(state.data); }
+  catch (e) {
+    $("health").textContent = ""; $("health").append(chip("Dashboard backend: unreachable", "bad"));
+  }
+  busy = false;
+}
+refresh(); setInterval(refresh, 2000);
+</script>
+</body>
+</html>
