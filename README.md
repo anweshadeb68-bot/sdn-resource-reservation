@@ -206,5 +206,5 @@ and the graphs from the saved raw files only.
 | Member | Responsibility |
 | --- | --- |
 | Member A (Anwesha) | TCP client and server, booking logic, request log and STATS, application tests, analysis, README |
-| Member B | Mininet topology, Ryu controller, queues, D2 congestion policy |
-| Anirudh | Mission Control dashboard, Ubuntu experiment runs and evidence |
+| Member B | Mininet topology, Ryu controller, queues, D2 congestion policy,  Ubuntu experiment runs and evidence |
+| Anirudh | Mission Control dashboard |
